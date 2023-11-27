@@ -34,7 +34,8 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 	if(syst == 4) systematics =  "trkloose";
 	if(syst == 5) systematics =  "centup";
 	if(syst == 6) systematics =  "centdown";
-	if(syst == 7) systematics =  "dupremoval";
+	if(syst == 7) systematics =  "removeduplicatedcut";
+	if(syst == 8) systematics =  "removeNpixelhitcut";
 	
 	TApplication *a = new TApplication("a", 0, 0); // avoid issues with corrupted files
 
@@ -136,6 +137,7 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 		vzhist->Fill(vertexz);
 		
 		if(cent > 140.0) continue; //remove events with centrality > 70%
+		Nevents->Fill(5); // filled after each event cut	
 
 		// Vectors used for objects
 		std::vector<ROOT::Math::PtEtaPhiMVector> tracks_reco;
@@ -148,10 +150,9 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 		// ------------------- Reconstruction level (Data and MC) ----------------------------
 		// Start loop over reco tracks (trksize is number of reco tracks)
 		int Ntroff = 0;
-		
+		if(ntrk < 2) continue;
+		Nevents->Fill(6); // filled after each event cut		
 		for (int j = 0; j < ntrk; j++){ 
-		
-			if(ntrk < 2) continue;
 
 		    // Track QA array
 			double x_reco_trk[5]={trkpt[j],trketa[j],trkphi[j],(double) trkcharge[j],(double) cent}; 
@@ -175,6 +176,7 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 			if(trkpt[j] <= 0.3) continue;
 			if(fabs(trketa[j]) > 2.4) continue;
 			if(highpur[j] == false) continue;
+			if(syst != 8) if (Npixelhit == 0) continue;
 
 			if(syst == 3){
 				if(fabs(trkpterr[j]/trkpt[j]) >= 0.05) continue;
