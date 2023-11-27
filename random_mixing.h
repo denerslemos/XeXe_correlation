@@ -3,7 +3,7 @@
 #define coscutmix 0.99996
 #define dptcutmix 0.04
 
-void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_mix, std::vector<int> ev_centrality, std::vector<int> ev_multiplicity, std::vector<double> vtx_z_vec, float vzcut, std::vector<std::vector<ROOT::Math::PtEtaPhiMVector>> Track_Vector, std::vector<std::vector<int>> Track_Chg_Vector, std::vector<std::vector<double>> Track_Eff_Vector, THnSparseD *histo_SS, THnSparseD *histo_SS3D, THnSparseD *histo_OS, THnSparseD *histo_OS3D, bool docostdptcut){
+void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_mix, std::vector<int> ev_centrality, std::vector<int> ev_multiplicity, std::vector<double> vtx_z_vec, float vzcut, std::vector<std::vector<ROOT::Math::PtEtaPhiMVector>> Track_Vector, std::vector<std::vector<int>> Track_Chg_Vector, std::vector<std::vector<double>> Track_Eff_Vector, THnSparseD *histo_SS, THnSparseD *histo_SS3D, THnSparseD *histo_OS, THnSparseD *histo_OS3D, bool docostdptcut, bool do_hbt3d){
 
    int aux_n_evts; // total number of events
    if(use_centrality){aux_n_evts = (int) ev_centrality.size();}else{aux_n_evts = (int) ev_multiplicity.size();}
@@ -57,10 +57,10 @@ void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_m
 				double x_2pc_hbt_3D[5]={qlong, qout, qside, kt, (double)ev_centrality[nevt_trg]}; 
 				if(Trk_chg_nevt_trg_vec[imix]*Trk_chg_nevt_ass_vec[iimix] > 0){
 					histo_SS->Fill(x_2pc_hbt,tot_eff);
-					histo_SS3D->Fill(x_2pc_hbt_3D,tot_eff);
+					if(do_hbt3d) histo_SS3D->Fill(x_2pc_hbt_3D,tot_eff);
 				}else{
 					histo_OS->Fill(x_2pc_hbt,tot_eff);			
-					histo_OS3D->Fill(x_2pc_hbt_3D,tot_eff);			
+					if(do_hbt3d) histo_OS3D->Fill(x_2pc_hbt_3D,tot_eff);			
 				}						
             }
          } // end of correlation loop

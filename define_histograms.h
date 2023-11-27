@@ -63,9 +63,9 @@ TH1D *npixelhit = new TH1D("npixelhit", "npixelhit", 5, 0.0, 5.0);
 
 // Track/Particle histograms
 // Axis : 0 -> track pT, 1 -> trk eta, 2 -> trk phi, 3 -> trk charge, 4 -> centrality bin
-int	bins_trk[5]      =   { 200   ,  25  ,   32		      , 4   , nCentBins};
-double xmin_trk[5]   =   { 0.0   , -2.5 ,   -3.2  		  , -2.0, CentBins[0]};
-double xmax_trk[5]   =   { 50.0  ,  2.5 ,   3.2  		  ,  2.0, CentBins[nCentBins+1]};
+int	bins_trk[5]      =   { 200   ,  25  ,   32		      , 2   , nCentBins};
+double xmin_trk[5]   =   { 0.0   , -2.5 ,   -3.2  		  , -1.0, CentBins[0]};
+double xmax_trk[5]   =   { 50.0  ,  2.5 ,   3.2  		  ,  1.0, CentBins[nCentBins+1]};
 // --> Reco
 THnSparseD *hist_reco_trk_beforeselection = new THnSparseD("hist_reco_trk_beforeselection", "hist_reco_trk_beforeselection", 5, bins_trk, xmin_trk, xmax_trk);
 THnSparseD *hist_reco_trk = new THnSparseD("hist_reco_trk", "hist_reco_trk", 5, bins_trk, xmin_trk, xmax_trk);

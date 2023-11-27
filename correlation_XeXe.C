@@ -11,6 +11,11 @@ input_file: text file with a list of root input files: Forest or Skims
 ouputfile: just a counting number to run on Condor
 isMC: 0 for false --> data and > 0 for true --> MC
 doquicktest: 0 for false and > 0 for true --> tests with 1000 events
+domixing: 0 with mixing and 1 without mixing
+Nmixevents: number of events to mix
+mincentormult: minimum centrality of multiplicity in the mixing
+minvz: minimum vertez between events in the mixing
+hbt3d: 0 with 3D and 1 without 3D
 syst:systematic uncertainties
 	--> 0: nominal
 	--> 1: |vz| < 3
@@ -19,12 +24,16 @@ syst:systematic uncertainties
 	--> 4: tracking loose
 	--> 5: centrality up
 	--> 6: centrality down
-	--> 7: duplication removal
+	--> 7: removal of duplication cut
+	--> 8: removal of Npixel cut
 */
-void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doquicktest, int syst, int Nmixevents, int mincentormult, float minvz){
+void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doquicktest, int domixing, int Nmixevents, int mincentormult, float minvz, int hbt3d, int syst){
 
 	bool do_quicktest; if(doquicktest == 0){do_quicktest = false;}else{do_quicktest = true;}
 	bool is_MC; if(isMC == 0){is_MC = false;}else{is_MC = true;}
+	bool do_mixing; if(domixing == 0){do_mixing = true;}else{do_mixing = false;}
+	bool do_hbt3d; if(hbt3d == 0){do_hbt3d = true;}else{do_hbt3d = false;}
+	
 	bool dosplit = false;
 	if(syst == 7) dosplit = true; 
 	
@@ -38,8 +47,6 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 	if(syst == 6) systematics =  "centdown";
 	if(syst == 7) systematics =  "removeduplicatedcut";
 	if(syst == 8) systematics =  "removeNpixelhitcut";
-	
-	
 	
 	TApplication *a = new TApplication("a", 0, 0); // avoid issues with corrupted files
 
@@ -117,8 +124,8 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 		if(do_quicktest){if(i != 0 && i % 10000 == 0 ) break;} // just for quick tests
 
 		int cent;
-		if(syst == 6){ cent = (int) (0.98 * (float)hiBin / 0.95);
-		} else if(syst == 7){ cent = (int) (0.92 * (float)hiBin / 0.95);
+		if(syst == 5){ cent = (int) (0.98 * (float)hiBin / 0.95);
+		} else if(syst == 6){ cent = (int) (0.92 * (float)hiBin / 0.95);
 		} else{ cent = (int) hiBin; }
 		centrality_beforefilters->Fill(cent);
 		vzhist_beforefilters->Fill(vertexz);
@@ -229,7 +236,8 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 		MultVSCent->Fill(Ntroff,cent);
 
 		if(tracks_reco.size()>1){
-			twoparticlecorrelation(tracks_reco, track_charge_reco, track_weight_reco, hist_qinv_SS, hist_qinv_SS_INV, hist_qinv_SS_ROT, hist_q3D_SS, hist_q3D_SS_INV, hist_q3D_SS_ROT, hist_qinv_OS, hist_qinv_OS_INV, hist_qinv_OS_ROT, hist_q3D_OS, hist_q3D_OS_INV, hist_q3D_OS_ROT, cent, dosplit); // HBT correlations done at this step
+			Nevents->Fill(7); // filled after each event cut
+			twoparticlecorrelation(tracks_reco, track_charge_reco, track_weight_reco, hist_qinv_SS, hist_qinv_SS_INV, hist_qinv_SS_ROT, hist_q3D_SS, hist_q3D_SS_INV, hist_q3D_SS_ROT, hist_qinv_OS, hist_qinv_OS_INV, hist_qinv_OS_ROT, hist_q3D_OS, hist_q3D_OS_INV, hist_q3D_OS_ROT, cent, dosplit, do_hbt3d); // HBT correlations done at this step
 			track_4vector.push_back(tracks_reco); // save 4 vector for mixing
 			track_charge_vector.push_back(track_charge_reco); // save charge vector for mixing
 			track_weights_vector.push_back(track_weight_reco); // save eff weight vector for mixing
@@ -280,8 +288,8 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 	
 	// do the mixing after the event selections
 	cout << "Time for mixing" << endl;
-	MixEvents(true, mincentormult, Nmixevents, centrality_vector, multiplicity_vector, vz_vector, minvz, track_4vector, track_charge_vector, track_weights_vector, hist_qinv_SS_MIX, hist_q3D_SS_MIX, hist_qinv_OS_MIX, hist_q3D_OS_MIX, dosplit);
-	if(is_MC){MixEvents(true, mincentormult, Nmixevents, centrality_vector_gen, multiplicity_vector_gen, vz_vector_gen, minvz, track_4vector_gen, track_charge_vector_gen, track_weights_vector_gen, hist_qinv_SS_gen_MIX, hist_q3D_SS_gen_MIX, hist_qinv_OS_gen_MIX, hist_q3D_OS_gen_MIX, dosplit);}
+	if(do_mixing) MixEvents(true, mincentormult, Nmixevents, centrality_vector, multiplicity_vector, vz_vector, minvz, track_4vector, track_charge_vector, track_weights_vector, hist_qinv_SS_MIX, hist_q3D_SS_MIX, hist_qinv_OS_MIX, hist_q3D_OS_MIX, dosplit, do_hbt3d);
+	if(is_MC && do_mixing){MixEvents(true, mincentormult, Nmixevents, centrality_vector_gen, multiplicity_vector_gen, vz_vector_gen, minvz, track_4vector_gen, track_charge_vector_gen, track_weights_vector_gen, hist_qinv_SS_gen_MIX, hist_q3D_SS_gen_MIX, hist_qinv_OS_gen_MIX, hist_q3D_OS_gen_MIX, dosplit, do_hbt3d);}
 
 	
 	// Open, write and close the output file
@@ -302,9 +310,9 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 	MyFile->mkdir("HBT_1D"); 
 	MyFile->cd("HBT_1D"); 
 	write_HBT1D(is_MC);
-
-	MyFile->mkdir("HBT_3D"); 
-	MyFile->cd("HBT_3D"); 
-	write_HBT3D(is_MC);
-	
+	if(do_hbt3d){
+		MyFile->mkdir("HBT_3D"); 
+		MyFile->cd("HBT_3D"); 
+		write_HBT3D(is_MC);
+	}
 }
