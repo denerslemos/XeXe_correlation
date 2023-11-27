@@ -1,7 +1,9 @@
 #include "call_libraries.h"  // call libraries from ROOT and C++
 #include "function_definition.h" // function definition
+#define coscutmix 0.99996
+#define dptcutmix 0.04
 
-void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_mix, std::vector<int> ev_centrality, std::vector<int> ev_multiplicity, std::vector<double> vtx_z_vec, float vzcut, std::vector<std::vector<ROOT::Math::PtEtaPhiMVector>> Track_Vector, std::vector<std::vector<int>> Track_Chg_Vector, std::vector<std::vector<double>> Track_Eff_Vector, THnSparseD *histo_SS, THnSparseD *histo_SS3D, THnSparseD *histo_OS, THnSparseD *histo_OS3D){
+void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_mix, std::vector<int> ev_centrality, std::vector<int> ev_multiplicity, std::vector<double> vtx_z_vec, float vzcut, std::vector<std::vector<ROOT::Math::PtEtaPhiMVector>> Track_Vector, std::vector<std::vector<int>> Track_Chg_Vector, std::vector<std::vector<double>> Track_Eff_Vector, THnSparseD *histo_SS, THnSparseD *histo_SS3D, THnSparseD *histo_OS, THnSparseD *histo_OS3D, bool docostdptcut){
 
    int aux_n_evts; // total number of events
    if(use_centrality){aux_n_evts = (int) ev_centrality.size();}else{aux_n_evts = (int) ev_multiplicity.size();}
@@ -40,7 +42,11 @@ void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_m
 			double eff_trk_imix = Trk_eff_nevt_trg_vec[imix];
             for(int iimix = 0; iimix < nMix_nevt_ass; iimix++){
 				double eff_trk_iimix = Trk_chg_nevt_ass_vec[iimix];
-				double tot_eff = eff_trk_imix * eff_trk_iimix;	
+				double tot_eff = eff_trk_imix * eff_trk_iimix;
+
+				if(fabs(Trk_nevt_trg_vec[imix].Eta() - Track_nevt_ass_vec[iimix].Eta()) == 0 && fabs(Trk_nevt_trg_vec[imix].Phi() - Track_nevt_ass_vec[iimix].Phi()) == 0) continue;
+				if(docostdptcut) splitcomb(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix],coscutmix,dptcutmix);
+					
         		ROOT::Math::PtEtaPhiMVector psum2 = Trk_nevt_trg_vec[imix] + Track_nevt_ass_vec[iimix];
         		double kt = (psum2.Pt())/2.;
 				double qinv = GetQ(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix]);

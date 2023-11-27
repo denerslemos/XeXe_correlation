@@ -39,6 +39,7 @@ double CentBins[nCentBins+1] = {0.0,20.0,60.0,100.0,140.0}; // 0-10%, 10-30%, 30
 TH1I *Nevents = new TH1I("Nevents", "Nevents", 10, 0, 10);
 TH1D *centrality_beforefilters = new TH1D("centrality_beforefilters", "centrality_beforefilters", 100, 0.0, 200.0);
 TH1D *centrality = new TH1D("centrality", "centrality", 100, 0.0, 200.0);
+TH1D *vzhist_beforefilters = new TH1D("vzhist_beforefilters", "vzhist_beforefilters", 80, -20., 20.);
 TH1D *vzhist = new TH1D("vzhist", "vzhist", 80, -20., 20.);
 TH1D *multiplicity = new TH1D("multiplicity", "multiplicity", 400, 0.0, 4000.0);
 TH2D *MultVSCent = new TH2D("MultVSCent", "MultVSCent", 200, 0.0, 4000.0, 100, 0.0, 200.0);
@@ -122,6 +123,7 @@ void sw2(){
 	centrality_beforefilters->Sumw2();
 	centrality->Sumw2();
 	vzhist->Sumw2();
+	vzhist_beforefilters->Sumw2();
 	multiplicity->Sumw2();
 	MultVSCent->Sumw2();
 	ptresolution_beforeselection->Sumw2();
@@ -253,6 +255,7 @@ void write_eventQA(){
 	Nevents->Write();
 	centrality_beforefilters->Write();
 	centrality->Write();
+	vzhist_beforefilters->Write();
 	vzhist->Write();
 	multiplicity->Write();
 	MultVSCent->Write();

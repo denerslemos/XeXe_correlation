@@ -25,6 +25,8 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 
 	bool do_quicktest; if(doquicktest == 0){do_quicktest = false;}else{do_quicktest = true;}
 	bool is_MC; if(isMC == 0){is_MC = false;}else{is_MC = true;}
+	bool dosplit = false;
+	if(syst == 7) dosplit = true; 
 	
 	TString systematics = "nonapplied_nominal";
 	if(syst == 0) systematics =  "nominal";
@@ -36,6 +38,8 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 	if(syst == 6) systematics =  "centdown";
 	if(syst == 7) systematics =  "removeduplicatedcut";
 	if(syst == 8) systematics =  "removeNpixelhitcut";
+	
+	
 	
 	TApplication *a = new TApplication("a", 0, 0); // avoid issues with corrupted files
 
@@ -109,14 +113,15 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 
 		hlt_tree->GetEntry(i); // get events from ttree
 
-		if(i != 0 && (i % 100) == 0){double alpha = (double)i; cout << " Running -> percentage: " << std::setprecision(3) << ((alpha / nev) * 100) << "%" << endl;} // % processed
-		if(i != 0 && i % 1000 == 0 ) break; // just for quick tests
+		if(i != 0 && (i % 1000) == 0){double alpha = (double)i; cout << " Running -> percentage: " << std::setprecision(3) << ((alpha / nev) * 100) << "%" << endl;} // % processed
+		if(do_quicktest){if(i != 0 && i % 10000 == 0 ) break;} // just for quick tests
 
 		int cent;
 		if(syst == 6){ cent = (int) (0.98 * (float)hiBin / 0.95);
 		} else if(syst == 7){ cent = (int) (0.92 * (float)hiBin / 0.95);
 		} else{ cent = (int) hiBin; }
 		centrality_beforefilters->Fill(cent);
+		vzhist_beforefilters->Fill(vertexz);
 
 		Nevents->Fill(0); // filled after each event cut		
 		// Apply event filters
@@ -224,7 +229,7 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 		MultVSCent->Fill(Ntroff,cent);
 
 		if(tracks_reco.size()>1){
-			twoparticlecorrelation(tracks_reco, track_charge_reco, track_weight_reco, hist_qinv_SS, hist_qinv_SS_INV, hist_qinv_SS_ROT, hist_q3D_SS, hist_q3D_SS_INV, hist_q3D_SS_ROT, hist_qinv_OS, hist_qinv_OS_INV, hist_qinv_OS_ROT, hist_q3D_OS, hist_q3D_OS_INV, hist_q3D_OS_ROT, cent); // HBT correlations done at this step
+			twoparticlecorrelation(tracks_reco, track_charge_reco, track_weight_reco, hist_qinv_SS, hist_qinv_SS_INV, hist_qinv_SS_ROT, hist_q3D_SS, hist_q3D_SS_INV, hist_q3D_SS_ROT, hist_qinv_OS, hist_qinv_OS_INV, hist_qinv_OS_ROT, hist_q3D_OS, hist_q3D_OS_INV, hist_q3D_OS_ROT, cent, dosplit); // HBT correlations done at this step
 			track_4vector.push_back(tracks_reco); // save 4 vector for mixing
 			track_charge_vector.push_back(track_charge_reco); // save charge vector for mixing
 			track_weights_vector.push_back(track_weight_reco); // save eff weight vector for mixing
@@ -262,7 +267,7 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 			} // End loop over gen tracks
 
 			if(tracks_gen.size()>1){
-				twoparticlecorrelation(tracks_gen, track_charge_gen, track_weight_gen, hist_qinv_SS_gen, hist_qinv_SS_gen_INV, hist_qinv_SS_gen_ROT, hist_q3D_SS_gen, hist_q3D_SS_gen_INV, hist_q3D_SS_gen_ROT, hist_qinv_OS_gen, hist_qinv_OS_gen_INV, hist_qinv_OS_gen_ROT, hist_q3D_OS_gen, hist_q3D_OS_gen_INV, hist_q3D_OS_gen_ROT, cent); // HBT correlations done at this step
+				twoparticlecorrelation(tracks_gen, track_charge_gen, track_weight_gen, hist_qinv_SS_gen, hist_qinv_SS_gen_INV, hist_qinv_SS_gen_ROT, hist_q3D_SS_gen, hist_q3D_SS_gen_INV, hist_q3D_SS_gen_ROT, hist_qinv_OS_gen, hist_qinv_OS_gen_INV, hist_qinv_OS_gen_ROT, hist_q3D_OS_gen, hist_q3D_OS_gen_INV, hist_q3D_OS_gen_ROT, cent, dosplit); // HBT correlations done at this step
 				track_4vector_gen.push_back(tracks_gen); // save 4 vector for mixing
 				track_charge_vector_gen.push_back(track_charge_gen); // save charge vector for mixing
 				track_weights_vector_gen.push_back(track_weight_gen); // save eff weight vector for mixing
@@ -275,8 +280,8 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 	
 	// do the mixing after the event selections
 	cout << "Time for mixing" << endl;
-	MixEvents(true, mincentormult, Nmixevents, centrality_vector, multiplicity_vector, vz_vector, minvz, track_4vector, track_charge_vector, track_weights_vector, hist_qinv_SS_MIX, hist_q3D_SS_MIX, hist_qinv_OS_MIX, hist_q3D_OS_MIX);
-	if(is_MC){MixEvents(true, mincentormult, Nmixevents, centrality_vector_gen, multiplicity_vector_gen, vz_vector_gen, minvz, track_4vector_gen, track_charge_vector_gen, track_weights_vector_gen, hist_qinv_SS_gen_MIX, hist_q3D_SS_gen_MIX, hist_qinv_OS_gen_MIX, hist_q3D_OS_gen_MIX);}
+	MixEvents(true, mincentormult, Nmixevents, centrality_vector, multiplicity_vector, vz_vector, minvz, track_4vector, track_charge_vector, track_weights_vector, hist_qinv_SS_MIX, hist_q3D_SS_MIX, hist_qinv_OS_MIX, hist_q3D_OS_MIX, dosplit);
+	if(is_MC){MixEvents(true, mincentormult, Nmixevents, centrality_vector_gen, multiplicity_vector_gen, vz_vector_gen, minvz, track_4vector_gen, track_charge_vector_gen, track_weights_vector_gen, hist_qinv_SS_gen_MIX, hist_q3D_SS_gen_MIX, hist_qinv_OS_gen_MIX, hist_q3D_OS_gen_MIX, dosplit);}
 
 	
 	// Open, write and close the output file

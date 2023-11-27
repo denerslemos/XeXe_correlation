@@ -1,4 +1,20 @@
 #include "call_libraries.h"  // call libraries from ROOT and C++
+#define coscut 0.99996
+#define dptcut 0.04
+
+/*
+Calculate q invariant
+--> Arguments
+p1: particle 1 4-vector
+p2: particle 2 4-vector
+*/
+bool splitcomb(ROOT::Math::PtEtaPhiMVector &vec1,ROOT::Math::PtEtaPhiMVector &vec2, double cos_cut, double dpt_cut){
+   bool issplit=false;
+   Double_t cosa = TMath::Abs(vec1.Px()*vec2.Px() + vec1.Py()*vec2.Py() + vec1.Pz()*vec2.Pz())/(vec1.P()*vec2.P());
+   Double_t deltapt = TMath::Abs(vec1.Pt() - vec2.Pt());
+   if ( (cosa > cos_cut) && (deltapt < dpt_cut)) { issplit = true;}
+   return issplit;
+}
 
 /*
 Calculate q invariant
@@ -81,7 +97,7 @@ tracks: vector with track informations
 tracks_charge: vector with track charge informations
 tracks_weight: vector with track efficiency informations
 */
-void twoparticlecorrelation(std::vector<ROOT::Math::PtEtaPhiMVector> tracks, std::vector<int> tracks_charge, std::vector<double> tracks_weight, THnSparse* histo_2pcorr_samesign,  THnSparse* histo_2pcorr_samesign_inverted,  THnSparse* histo_2pcorr_samesign_rotated, THnSparse* histo_2pcorr_samesign3D,  THnSparse* histo_2pcorr_samesign3D_inverted,  THnSparse* histo_2pcorr_samesign3D_rotated, THnSparse* histo_2pcorr_oppsign, THnSparse* histo_2pcorr_oppsign_inverted, THnSparse* histo_2pcorr_oppsign_rotated, THnSparse* histo_2pcorr_oppsign3D, THnSparse* histo_2pcorr_oppsign3D_inverted, THnSparse* histo_2pcorr_oppsign3D_rotated, int cent){
+void twoparticlecorrelation(std::vector<ROOT::Math::PtEtaPhiMVector> tracks, std::vector<int> tracks_charge, std::vector<double> tracks_weight, THnSparse* histo_2pcorr_samesign,  THnSparse* histo_2pcorr_samesign_inverted,  THnSparse* histo_2pcorr_samesign_rotated, THnSparse* histo_2pcorr_samesign3D,  THnSparse* histo_2pcorr_samesign3D_inverted,  THnSparse* histo_2pcorr_samesign3D_rotated, THnSparse* histo_2pcorr_oppsign, THnSparse* histo_2pcorr_oppsign_inverted, THnSparse* histo_2pcorr_oppsign_rotated, THnSparse* histo_2pcorr_oppsign3D, THnSparse* histo_2pcorr_oppsign3D_inverted, THnSparse* histo_2pcorr_oppsign3D_rotated, int cent, bool docostdptcut){
 	// get correlation histograms
 	for (int a = 0; a < tracks.size(); a++){ // start loop over tracks
 		double eff_trk_a = tracks_weight[a];
@@ -89,6 +105,9 @@ void twoparticlecorrelation(std::vector<ROOT::Math::PtEtaPhiMVector> tracks, std
 			double eff_trk_b = tracks_weight[b];
 			double tot_eff = eff_trk_a*eff_trk_b;
 
+			if(fabs(tracks[a].Eta() - tracks[b].Eta()) == 0 && fabs(tracks[a].Phi() - tracks[b].Phi()) == 0) continue;
+			if(docostdptcut) splitcomb(tracks[a],tracks[b],coscut,dptcut);
+			
         	ROOT::Math::PtEtaPhiMVector psum2 = tracks[a] + tracks[b];
         	double kt = (psum2.Pt())/2.;
         	ROOT::Math::PtEtaPhiMVector psum2_inverted = tracks[a] + InvertPVector(tracks[b]);
