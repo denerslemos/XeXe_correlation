@@ -18,9 +18,9 @@ std::vector<std::vector<int>> track_charge_vector_gen;
 
 // define the bins
 // qinv
-const int nQBins = 300;   // number of qinv bins
+const int nQBins = 400;   // number of qinv bins
 const double minQ = 0.0;  // minimum qinv
-const double maxQ = 3.0;  // maximumm qinv
+const double maxQ = 4.0;  // maximumm qinv
 
 // q3D
 const int nQBins3D = 100;   // number of q3D bins
@@ -96,9 +96,9 @@ THnSparseD *hist_qinv_OS_gen_MIX = new THnSparseD("hist_qinv_OS_gen_MIX", "hist_
 
 // HBT histograms for tests
 // Axis : 0 -> qlong, 1 -> qout, 2 -> qside, 3 -> kT, 4 -> centrality bin
-int	bins_q3D[5]      =   { nQBins3D, nQBins3D, nQBins3D,  nKtBins 		  , nCentBins};
+int	bins_q3D[5]      =   { nQBins3D, nQBins3D, nQBins3D,  nKtBins 		      , nCentBins};
 double xmin_q3D[5]   =   { minQ3D  , minQ3D  , minQ3D  ,  KtBins[0] 		  , CentBins[0]};
-double xmax_q3D[5]   =   { maxQ3D  , maxQ3D  , maxQ3D  ,  KtBins[nKtBins+1] , CentBins[nCentBins+1]};
+double xmax_q3D[5]   =   { maxQ3D  , maxQ3D  , maxQ3D  ,  KtBins[nKtBins+1]   , CentBins[nCentBins+1]};
 THnSparseD *hist_q3D_SS = new THnSparseD("hist_q3D_SS", "hist_q3D_SS", 5, bins_q3D, xmin_q3D, xmax_q3D);
 THnSparseD *hist_q3D_SS_INV = new THnSparseD("hist_q3D_SS_INV", "hist_q3D_SS_INV", 5, bins_q3D, xmin_q3D, xmax_q3D);
 THnSparseD *hist_q3D_SS_ROT = new THnSparseD("hist_q3D_SS_ROT", "hist_q3D_SS_ROT", 5, bins_q3D, xmin_q3D, xmax_q3D);
