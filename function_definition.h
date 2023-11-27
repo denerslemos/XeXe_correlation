@@ -125,20 +125,19 @@ void twoparticlecorrelation(std::vector<ROOT::Math::PtEtaPhiMVector> tracks, std
 			double x_2pc_hbt_inv[3]={qinv_inverted, kt_inverted, (double)cent}; 
 			double x_2pc_hbt_rot[3]={qinv_rotated, kt_rotated, (double)cent}; 
 
-			if(do_hbt3d){
-				double qlong = GetQlongLCMS(tracks[a],tracks[b]);
-				double qlong_inverted = GetQlongLCMS(tracks[a], trackb_inverted);
-				double qlong_rotated = GetQlongLCMS(tracks[a], trackb_rotated);
-				double qout = GetQout(tracks[a],tracks[b]);
-				double qout_inverted = GetQout(tracks[a], trackb_inverted);
-				double qout_rotated = GetQout(tracks[a], trackb_rotated);
-				double qside = GetQside(tracks[a],tracks[b]);
-				double qside_inverted = GetQside(tracks[a], trackb_inverted);
-				double qside_rotated = GetQside(tracks[a], trackb_rotated);
-				double x_2pc_hbt_3D[5]={qlong, qout, qside, kt, (double)cent}; 
-				double x_2pc_hbt_3D_inv[5]={qlong_inverted, qout_inverted, qside_inverted, kt_inverted, (double)cent}; 
-				double x_2pc_hbt_3D_rot[5]={qlong_rotated, qout_rotated, qside_rotated, kt_rotated, (double)cent}; 
-			}
+			double qlong = GetQlongLCMS(tracks[a],tracks[b]);
+			double qlong_inverted = GetQlongLCMS(tracks[a], trackb_inverted);
+			double qlong_rotated = GetQlongLCMS(tracks[a], trackb_rotated);
+			double qout = GetQout(tracks[a],tracks[b]);
+			double qout_inverted = GetQout(tracks[a], trackb_inverted);
+			double qout_rotated = GetQout(tracks[a], trackb_rotated);
+			double qside = GetQside(tracks[a],tracks[b]);
+			double qside_inverted = GetQside(tracks[a], trackb_inverted);
+			double qside_rotated = GetQside(tracks[a], trackb_rotated);
+			double x_2pc_hbt_3D[5]={qlong, qout, qside, kt, (double)cent}; 
+			double x_2pc_hbt_3D_inv[5]={qlong_inverted, qout_inverted, qside_inverted, kt_inverted, (double)cent}; 
+			double x_2pc_hbt_3D_rot[5]={qlong_rotated, qout_rotated, qside_rotated, kt_rotated, (double)cent}; 
+
 			if(tracks_charge[a]*tracks_charge[b] > 0){
 				histo_2pcorr_samesign->Fill(x_2pc_hbt,tot_eff);
 				histo_2pcorr_samesign_inverted->Fill(x_2pc_hbt_inv,tot_eff);
