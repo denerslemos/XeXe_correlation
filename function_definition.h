@@ -1,17 +1,19 @@
 #include "call_libraries.h"  // call libraries from ROOT and C++
 #define coscut 0.99996
 #define dptcut 0.04
-
+#define pimass 0.1396
 /*
 Calculate q invariant
 --> Arguments
 p1: particle 1 4-vector
 p2: particle 2 4-vector
+cos_cut: cut used in the cosine of angle between the particles
+dpt_cut: cut used in the difference in pT of the particles
 */
 bool splitcomb(ROOT::Math::PtEtaPhiMVector &vec1,ROOT::Math::PtEtaPhiMVector &vec2, double cos_cut, double dpt_cut){
    bool issplit=false;
-   Double_t cosa = TMath::Abs(vec1.Px()*vec2.Px() + vec1.Py()*vec2.Py() + vec1.Pz()*vec2.Pz())/(vec1.P()*vec2.P());
-   Double_t deltapt = TMath::Abs(vec1.Pt() - vec2.Pt());
+   double cosa = TMath::Abs(vec1.Px()*vec2.Px() + vec1.Py()*vec2.Py() + vec1.Pz()*vec2.Pz())/(vec1.P()*vec2.P());
+   double deltapt = fabs(vec1.Pt() - vec2.Pt());
    if ( (cosa > cos_cut) && (deltapt < dpt_cut)) { issplit = true;}
    return issplit;
 }
@@ -78,16 +80,56 @@ float GetQside(ROOT::Math::PtEtaPhiMVector &p1, ROOT::Math::PtEtaPhiMVector &p2)
    return absValue;
 }
 
+/*
+Invert Px, Py and Pz for reference sample
+--> Arguments
+p1: particle 1 4-vector
+p2: particle 2 4-vector
+*/
 ROOT::Math::PtEtaPhiMVector InvertPVector( ROOT::Math::PtEtaPhiMVector &vec){
    ROOT::Math::PtEtaPhiMVector ovec = vec;
    ovec.SetPxPyPzE(-vec.Px(),-vec.Py(),-vec.Pz(),vec.E());
    return ovec;
 }
 
+/*
+Rotate X and Y for reference sample
+--> Arguments
+p1: particle 1 4-vector
+p2: particle 2 4-vector
+*/
 ROOT::Math::PtEtaPhiMVector InvertXYVector( ROOT::Math::PtEtaPhiMVector &vec){
   ROOT::Math::PtEtaPhiMVector ovec = vec;
   ovec.SetXYZT(-vec.X(),-vec.Y(),vec.Z(),vec.T());
   return ovec;
+}
+
+/*
+Return the weight factor due to Coloumb repulsion [Gamow] same charge
+--> Arguments
+q: q invariant
+*/
+const double CoulombSS(const double &q){
+   const Double_t alpha=1./137.;
+   Double_t x=2*TMath::Pi()*(alpha*pimass/q);
+   Double_t weight = 1;
+   //Double_t weight = 1.15; //for syst. +15%
+   //Double_t weight = 0.85; //for syst. -15%
+   return weight*( (TMath::Exp(x)-1.)/x -1 ) + 1;
+}
+
+/*
+Return the weight factor due to Coloumb attraction [Gamow] opposite charge
+--> Arguments
+q: q invariant
+*/
+const double CoulombOS(const double &q){
+   const double alpha=1./137.;
+   double x=2*TMath::Pi()*(alpha*pimass/q);
+   double weight = 1;
+   //double weight = 1.15; //for syst. +15%
+   //double weight = 0.85; //for syst. -15%
+   return weight*( (1.-TMath::Exp(-x))/x -1 ) + 1;
 }
 
 /*
@@ -97,7 +139,7 @@ tracks: vector with track informations
 tracks_charge: vector with track charge informations
 tracks_weight: vector with track efficiency informations
 */
-void twoparticlecorrelation(std::vector<ROOT::Math::PtEtaPhiMVector> tracks, std::vector<int> tracks_charge, std::vector<double> tracks_weight, THnSparse* histo_2pcorr_samesign,  THnSparse* histo_2pcorr_samesign_inverted,  THnSparse* histo_2pcorr_samesign_rotated, THnSparse* histo_2pcorr_samesign3D,  THnSparse* histo_2pcorr_samesign3D_inverted,  THnSparse* histo_2pcorr_samesign3D_rotated, THnSparse* histo_2pcorr_oppsign, THnSparse* histo_2pcorr_oppsign_inverted, THnSparse* histo_2pcorr_oppsign_rotated, THnSparse* histo_2pcorr_oppsign3D, THnSparse* histo_2pcorr_oppsign3D_inverted, THnSparse* histo_2pcorr_oppsign3D_rotated, int cent, bool docostdptcut, bool do_hbt3d){
+void twoparticlecorrelation(std::vector<ROOT::Math::PtEtaPhiMVector> tracks, std::vector<int> tracks_charge, std::vector<double> tracks_weight, TH1D* pairmass_samesign, TH2D* costhetadpt_samesign, THnSparse* histo_2pcorr_samesign,  THnSparse* histo_2pcorr_samesign_inverted,  THnSparse* histo_2pcorr_samesign_rotated, THnSparse* histo_2pcorr_samesign3D,  THnSparse* histo_2pcorr_samesign3D_inverted,  THnSparse* histo_2pcorr_samesign3D_rotated, TH1D* pairmass_oppsign, TH2D* costhetadpt_oppsign, THnSparse* histo_2pcorr_oppsign, THnSparse* histo_2pcorr_oppsign_inverted, THnSparse* histo_2pcorr_oppsign_rotated, THnSparse* histo_2pcorr_oppsign3D, THnSparse* histo_2pcorr_oppsign3D_inverted, THnSparse* histo_2pcorr_oppsign3D_rotated, int cent, bool docostdptcut, bool do_hbt3d, bool dogamovcorrection){
 	// get correlation histograms
 	for (int a = 0; a < tracks.size(); a++){ // start loop over tracks
 		double eff_trk_a = tracks_weight[a];
@@ -106,8 +148,8 @@ void twoparticlecorrelation(std::vector<ROOT::Math::PtEtaPhiMVector> tracks, std
 			double tot_eff = eff_trk_a*eff_trk_b;
 
 			if(fabs(tracks[a].Eta() - tracks[b].Eta()) == 0 && fabs(tracks[a].Phi() - tracks[b].Phi()) == 0) continue;
-			if(docostdptcut) splitcomb(tracks[a],tracks[b],coscut,dptcut);
-			
+			if(docostdptcut){if(splitcomb(tracks[a],tracks[b],coscut,dptcut)) continue;}
+
         	ROOT::Math::PtEtaPhiMVector psum2 = tracks[a] + tracks[b];
         	double kt = (psum2.Pt())/2.;
         	ROOT::Math::PtEtaPhiMVector psum2_inverted = tracks[a] + InvertPVector(tracks[b]);
@@ -137,24 +179,39 @@ void twoparticlecorrelation(std::vector<ROOT::Math::PtEtaPhiMVector> tracks, std
 			double x_2pc_hbt_3D[5]={qlong, qout, qside, kt, (double)cent}; 
 			double x_2pc_hbt_3D_inv[5]={qlong_inverted, qout_inverted, qside_inverted, kt_inverted, (double)cent}; 
 			double x_2pc_hbt_3D_rot[5]={qlong_rotated, qout_rotated, qside_rotated, kt_rotated, (double)cent}; 
+			
+			double coulomb_ss = 1.0;
+			double coulomb_os = 1.0;
+			if(dogamovcorrection){
+				coulomb_ss = CoulombSS(qinv);
+				coulomb_os = CoulombOS(qinv);		
+			}
+			
+			double costheta = TMath::Abs(tracks[a].Px()*tracks[b].Px() + tracks[a].Py()*tracks[b].Py() + tracks[a].Pz()*tracks[b].Pz())/(tracks[a].P()*tracks[b].P());
+   			double dpt = fabs(tracks[a].Pt() - tracks[b].Pt());
+   			double pairmass = psum2.M();
 
 			if(tracks_charge[a]*tracks_charge[b] > 0){
-				histo_2pcorr_samesign->Fill(x_2pc_hbt,tot_eff);
-				histo_2pcorr_samesign_inverted->Fill(x_2pc_hbt_inv,tot_eff);
-				histo_2pcorr_samesign_rotated->Fill(x_2pc_hbt_rot,tot_eff);
+				pairmass_samesign->Fill(pairmass,tot_eff);
+				costhetadpt_samesign->Fill(costheta,dpt,tot_eff);
+				histo_2pcorr_samesign->Fill(x_2pc_hbt,coulomb_ss*tot_eff);
+				histo_2pcorr_samesign_inverted->Fill(x_2pc_hbt_inv,coulomb_ss*tot_eff);
+				histo_2pcorr_samesign_rotated->Fill(x_2pc_hbt_rot,coulomb_ss*tot_eff);
 				if(do_hbt3d){
-					histo_2pcorr_samesign3D->Fill(x_2pc_hbt_3D,tot_eff);
-					histo_2pcorr_samesign3D_inverted->Fill(x_2pc_hbt_3D_inv,tot_eff);
-					histo_2pcorr_samesign3D_rotated->Fill(x_2pc_hbt_3D_rot,tot_eff);
+					histo_2pcorr_samesign3D->Fill(x_2pc_hbt_3D,coulomb_ss*tot_eff);
+					histo_2pcorr_samesign3D_inverted->Fill(x_2pc_hbt_3D_inv,coulomb_ss*tot_eff);
+					histo_2pcorr_samesign3D_rotated->Fill(x_2pc_hbt_3D_rot,coulomb_ss*tot_eff);
 				}
 			}else{
-				histo_2pcorr_oppsign->Fill(x_2pc_hbt,tot_eff);			
-				histo_2pcorr_oppsign_inverted->Fill(x_2pc_hbt_inv,tot_eff);			
-				histo_2pcorr_oppsign_rotated->Fill(x_2pc_hbt_rot,tot_eff);			
+				pairmass_oppsign->Fill(pairmass,tot_eff);
+				costhetadpt_oppsign->Fill(costheta,dpt,tot_eff);
+				histo_2pcorr_oppsign->Fill(x_2pc_hbt,coulomb_os*tot_eff);			
+				histo_2pcorr_oppsign_inverted->Fill(x_2pc_hbt_inv,coulomb_os*tot_eff);			
+				histo_2pcorr_oppsign_rotated->Fill(x_2pc_hbt_rot,coulomb_os*tot_eff);			
 				if(do_hbt3d){
-					histo_2pcorr_oppsign3D->Fill(x_2pc_hbt_3D,tot_eff);			
-					histo_2pcorr_oppsign3D_inverted->Fill(x_2pc_hbt_3D_inv,tot_eff);			
-					histo_2pcorr_oppsign3D_rotated->Fill(x_2pc_hbt_3D_rot,tot_eff);			
+					histo_2pcorr_oppsign3D->Fill(x_2pc_hbt_3D,coulomb_os*tot_eff);			
+					histo_2pcorr_oppsign3D_inverted->Fill(x_2pc_hbt_3D_inv,coulomb_os*tot_eff);			
+					histo_2pcorr_oppsign3D_rotated->Fill(x_2pc_hbt_3D_rot,coulomb_os*tot_eff);			
 				}
 			}
 		} // b loop

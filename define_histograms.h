@@ -63,9 +63,9 @@ TH1D *npixelhit = new TH1D("npixelhit", "npixelhit", 5, 0.0, 5.0);
 
 // Track/Particle histograms
 // Axis : 0 -> track pT, 1 -> trk eta, 2 -> trk phi, 3 -> trk charge, 4 -> centrality bin
-int	bins_trk[5]      =   { 200   ,  25  ,   32		      , 2   , nCentBins};
-double xmin_trk[5]   =   { 0.0   , -2.5 ,   -3.2  		  , -1.0, CentBins[0]};
-double xmax_trk[5]   =   { 50.0  ,  2.5 ,   3.2  		  ,  1.0, CentBins[nCentBins+1]};
+int	bins_trk[5]      =   { 200   ,  24  ,   30				      , 3   , nCentBins};
+double xmin_trk[5]   =   { 0.0   , -2.4 ,   -TMath::Pi()  		  , -1.5, CentBins[0]};
+double xmax_trk[5]   =   { 50.0  ,  2.4 ,   TMath::Pi()  		  ,  1.5, CentBins[nCentBins+1]};
 // --> Reco
 THnSparseD *hist_reco_trk_beforeselection = new THnSparseD("hist_reco_trk_beforeselection", "hist_reco_trk_beforeselection", 5, bins_trk, xmin_trk, xmax_trk);
 THnSparseD *hist_reco_trk = new THnSparseD("hist_reco_trk", "hist_reco_trk", 5, bins_trk, xmin_trk, xmax_trk);
@@ -116,6 +116,17 @@ THnSparseD *hist_q3D_OS_gen = new THnSparseD("hist_q3D_OS_gen", "hist_q3D_OS_gen
 THnSparseD *hist_q3D_OS_gen_INV = new THnSparseD("hist_q3D_OS_gen_INV", "hist_q3D_OS_gen_INV", 5, bins_q3D, xmin_q3D, xmax_q3D);
 THnSparseD *hist_q3D_OS_gen_ROT = new THnSparseD("hist_q3D_OS_gen_ROT", "hist_q3D_OS_gen_ROT", 5, bins_q3D, xmin_q3D, xmax_q3D);
 THnSparseD *hist_q3D_OS_gen_MIX = new THnSparseD("hist_q3D_OS_gen_MIX", "hist_q3D_OS_gen_MIX", 5, bins_q3D, xmin_q3D, xmax_q3D);
+
+TH2D *hist_dpt_cos_SS = new TH2D("hist_dpt_cos_SS", "hist_dpt_cos_SS",1000, 0.99910, 1.0001, 100, -0.25, 0.25);
+TH2D *hist_dpt_cos_OS = new TH2D("hist_dpt_cos_OS", "hist_dpt_cos_OS",1000, 0.99910, 1.0001, 100, -0.25, 0.25);
+TH1D *hist_pairSS_Mass = new TH1D("hist_pairSS_Mass", "Invariant mass same-sign tracks", 500, 0, 1.0);
+TH1D *hist_pairOS_Mass = new TH1D("hist_pairOS_Mass", "Invariant mass opposite-sign tracks", 500, 0, 1.0);
+
+TH2D *hist_dpt_cos_SS_gen = new TH2D("hist_dpt_cos_SS_gen", "hist_dpt_cos_SS_gen",1000, 0.99910, 1.0001, 100, 0, 0.5);
+TH2D *hist_dpt_cos_OS_gen = new TH2D("hist_dpt_cos_OS_gen", "hist_dpt_cos_OS_gen",1000, 0.99910, 1.0001, 100, 0, 0.5);
+TH1D *hist_pairSS_Mass_gen = new TH1D("hist_pairSS_Mass_gen", "hist_pairSS_Mass_gen", 500, 0, 1.0);
+TH1D *hist_pairOS_Mass_gen = new TH1D("hist_pairOS_Mass_gen", "hist_pairOS_Mass_gen", 500, 0, 1.0);
+
 
 void sw2(){
 
@@ -174,6 +185,15 @@ void sw2(){
 	hist_q3D_OS_gen_INV->Sumw2();
 	hist_q3D_OS_gen_ROT->Sumw2();
 	hist_q3D_OS_gen_MIX->Sumw2();
+	
+	hist_dpt_cos_SS->Sumw2();
+	hist_dpt_cos_OS->Sumw2();
+	hist_pairSS_Mass->Sumw2();
+	hist_pairOS_Mass->Sumw2();
+	hist_dpt_cos_SS_gen->Sumw2();
+	hist_dpt_cos_OS_gen->Sumw2();
+	hist_pairSS_Mass_gen->Sumw2();
+	hist_pairOS_Mass_gen->Sumw2();
 		
 	hist_reco_trk_beforeselection->GetAxis(4)->Set(bins_trk[4],CentBins);
 	hist_reco_trk->GetAxis(4)->Set(bins_trk[4],CentBins);	
@@ -296,7 +316,11 @@ void write_HBT1D(bool is_MC){
 	hist_qinv_OS_INV->Write();
 	hist_qinv_OS_ROT->Write();
 	hist_qinv_OS_MIX->Write();
-	
+	hist_dpt_cos_SS->Write();
+	hist_dpt_cos_OS->Write();
+	hist_pairSS_Mass->Write();
+	hist_pairOS_Mass->Write();
+		
 	if(is_MC){
 		hist_qinv_SS_gen->Write();
 		hist_qinv_SS_gen_INV->Write();
@@ -305,6 +329,10 @@ void write_HBT1D(bool is_MC){
 		hist_qinv_OS_gen->Write();
 		hist_qinv_OS_gen_INV->Write();
 		hist_qinv_OS_gen_MIX->Write();
+		hist_dpt_cos_SS_gen->Write();
+		hist_dpt_cos_OS_gen->Write();
+		hist_pairSS_Mass_gen->Write();
+		hist_pairOS_Mass_gen->Write();
 	}
 
 }

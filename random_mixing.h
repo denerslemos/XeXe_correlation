@@ -36,6 +36,8 @@ void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_m
          int nMix_nevt_ass = (int)Track_nevt_ass_vec.size();  // track vector size for associate
 
          n_associated = n_associated + 1; // if pass the requirements sum 1
+         
+         if(n_associated > nEvt_to_mix)break;
 
          // loop and fill correlation histograms
          for(int imix = 0; imix < nMix_nevt_trg; imix++){
@@ -45,8 +47,7 @@ void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_m
 				double tot_eff = eff_trk_imix * eff_trk_iimix;
 
 				if(fabs(Trk_nevt_trg_vec[imix].Eta() - Track_nevt_ass_vec[iimix].Eta()) == 0 && fabs(Trk_nevt_trg_vec[imix].Phi() - Track_nevt_ass_vec[iimix].Phi()) == 0) continue;
-				if(docostdptcut) splitcomb(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix],coscutmix,dptcutmix);
-					
+				if(docostdptcut){ if(splitcomb(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix],coscutmix,dptcutmix)) continue; }
         		ROOT::Math::PtEtaPhiMVector psum2 = Trk_nevt_trg_vec[imix] + Track_nevt_ass_vec[iimix];
         		double kt = (psum2.Pt())/2.;
 				double qinv = GetQ(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix]);
@@ -64,7 +65,6 @@ void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_m
 				}						
             }
          } // end of correlation loop
-         if (n_associated==nEvt_to_mix) break;
       }
    } // end of all events loop
 }

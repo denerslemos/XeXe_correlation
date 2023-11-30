@@ -16,6 +16,7 @@ Nmixevents: number of events to mix
 mincentormult: minimum centrality of multiplicity in the mixing
 minvz: minimum vertez between events in the mixing
 hbt3d: 0 with 3D and 1 without 3D
+gamov: 0 means no GAMOV Coulomb correction and > 0 means GAMOV is added
 syst:systematic uncertainties
 	--> 0: nominal
 	--> 1: |vz| < 3
@@ -27,7 +28,7 @@ syst:systematic uncertainties
 	--> 7: removal of duplication cut
 	--> 8: removal of Npixel cut
 */
-void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doquicktest, int domixing, int Nmixevents, int mincentormult, float minvz, int hbt3d, int syst){
+void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doquicktest, int domixing, int Nmixevents, int mincentormult, float minvz, int hbt3d, int gamov, int syst){
 
 	clock_t sec_start, sec_end;
 	sec_start = clock(); // start timing measurement
@@ -36,6 +37,7 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 	bool is_MC; if(isMC == 0){is_MC = false;}else{is_MC = true;}
 	bool do_mixing; if(domixing == 0){do_mixing = true;}else{do_mixing = false;}
 	bool do_hbt3d; if(hbt3d == 0){do_hbt3d = true;}else{do_hbt3d = false;}
+	bool do_gamov; if(gamov == 0){do_gamov = false;}else{do_gamov = true;}
 	
 	bool dosplit = false;
 	if(syst != 7) dosplit = true; 
@@ -120,7 +122,7 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 		hlt_tree->GetEntry(i); // get events from ttree
 
 		if(i != 0 && (i % 10) == 0){double alpha = (double)i; cout << " Running -> percentage: " << std::setprecision(3) << ((alpha / nev) * 100) << "%" << endl;} // % processed
-		if(do_quicktest){if(i != 0 && i % 1000 == 0 ) break;} // just for quick tests
+		if(do_quicktest){if(i != 0 && i % 100 == 0 ) break;} // just for quick tests
 
 		int cent;
 		if(syst == 5){ cent = (int) (0.98 * (float)hiBin / 0.95);
@@ -234,7 +236,7 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 
 		if(tracks_reco.size()>1){
 			Nevents->Fill(6); // filled after each event cut
-			twoparticlecorrelation(tracks_reco, track_charge_reco, track_weight_reco, hist_qinv_SS, hist_qinv_SS_INV, hist_qinv_SS_ROT, hist_q3D_SS, hist_q3D_SS_INV, hist_q3D_SS_ROT, hist_qinv_OS, hist_qinv_OS_INV, hist_qinv_OS_ROT, hist_q3D_OS, hist_q3D_OS_INV, hist_q3D_OS_ROT, cent, dosplit, do_hbt3d); // HBT correlations done at this step
+			twoparticlecorrelation(tracks_reco, track_charge_reco, track_weight_reco, hist_pairSS_Mass, hist_dpt_cos_SS, hist_qinv_SS, hist_qinv_SS_INV, hist_qinv_SS_ROT, hist_q3D_SS, hist_q3D_SS_INV, hist_q3D_SS_ROT, hist_pairOS_Mass, hist_dpt_cos_OS, hist_qinv_OS, hist_qinv_OS_INV, hist_qinv_OS_ROT, hist_q3D_OS, hist_q3D_OS_INV, hist_q3D_OS_ROT, cent, dosplit, do_hbt3d, do_gamov); // HBT correlations done at this step
 			track_4vector.push_back(tracks_reco); // save 4 vector for mixing
 			track_charge_vector.push_back(track_charge_reco); // save charge vector for mixing
 			track_weights_vector.push_back(track_weight_reco); // save eff weight vector for mixing
@@ -257,7 +259,6 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 				// Kinematic and charge cuts
 				if(fabs(gen_trketa->at(j)) > 2.4) continue;
 				if(gen_trkpt->at(j) <= 0.3)continue;
-
 				// Track/particle QA histogram filling
 				double x_gen_trk[5]={gen_trkpt->at(j), gen_trketa->at(j), gen_trkphi->at(j), (double) gen_trkchg->at(j), (double) cent}; 	
 		    	ROOT::Math::PtEtaPhiMVector TrackFourVectorGen;
@@ -272,7 +273,7 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 			} // End loop over gen tracks
 
 			if(tracks_gen.size()>1){
-				twoparticlecorrelation(tracks_gen, track_charge_gen, track_weight_gen, hist_qinv_SS_gen, hist_qinv_SS_gen_INV, hist_qinv_SS_gen_ROT, hist_q3D_SS_gen, hist_q3D_SS_gen_INV, hist_q3D_SS_gen_ROT, hist_qinv_OS_gen, hist_qinv_OS_gen_INV, hist_qinv_OS_gen_ROT, hist_q3D_OS_gen, hist_q3D_OS_gen_INV, hist_q3D_OS_gen_ROT, cent, dosplit, do_hbt3d); // HBT correlations done at this step
+				twoparticlecorrelation(tracks_gen, track_charge_gen, track_weight_gen, hist_pairSS_Mass_gen, hist_dpt_cos_SS_gen, hist_qinv_SS_gen, hist_qinv_SS_gen_INV, hist_qinv_SS_gen_ROT, hist_q3D_SS_gen, hist_q3D_SS_gen_INV, hist_q3D_SS_gen_ROT, hist_pairOS_Mass_gen, hist_dpt_cos_OS_gen, hist_qinv_OS_gen, hist_qinv_OS_gen_INV, hist_qinv_OS_gen_ROT, hist_q3D_OS_gen, hist_q3D_OS_gen_INV, hist_q3D_OS_gen_ROT, cent, dosplit, do_hbt3d, do_gamov); // HBT correlations done at this step
 				track_4vector_gen.push_back(tracks_gen); // save 4 vector for mixing
 				track_charge_vector_gen.push_back(track_charge_gen); // save charge vector for mixing
 				track_weights_vector_gen.push_back(track_weight_gen); // save eff weight vector for mixing
