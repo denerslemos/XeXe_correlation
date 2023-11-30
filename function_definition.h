@@ -115,7 +115,7 @@ const double CoulombSS(const double &q){
    Double_t weight = 1.0;
    //Double_t weight = 1.15; //for syst. +15%
    //Double_t weight = 0.85; //for syst. -15%
-   return weight*( (TMath::Exp(x) - 1.0)/ x - 1.0 ) + 1.0;
+   return weight*( ( TMath::Exp(x) - 1.0 ) / x );
 }
 
 /*
@@ -129,7 +129,7 @@ const double CoulombOS(const double &q){
    double weight = 1.0;
    //double weight = 1.15; //for syst. +15%
    //double weight = 0.85; //for syst. -15%
-   return weight*( (1.-TMath::Exp(-x)) / x - 1.0 ) + 1.0;
+   return weight*( ( 1.0 - TMath::Exp(-x) ) / x );
 }
 
 /*
