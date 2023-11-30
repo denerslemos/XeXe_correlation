@@ -111,11 +111,11 @@ q: q invariant
 */
 const double CoulombSS(const double &q){
    const Double_t alpha=1./137.;
-   Double_t x=2*TMath::Pi()*(alpha*pimass/q);
-   Double_t weight = 1;
+   Double_t x=2.0*TMath::Pi()*(alpha*pimass/q);
+   Double_t weight = 1.0;
    //Double_t weight = 1.15; //for syst. +15%
    //Double_t weight = 0.85; //for syst. -15%
-   return weight*( (TMath::Exp(x)-1.)/x -1 ) + 1;
+   return weight*( (TMath::Exp(x) - 1.0)/ x - 1.0 ) + 1.0;
 }
 
 /*
@@ -125,11 +125,11 @@ q: q invariant
 */
 const double CoulombOS(const double &q){
    const double alpha=1./137.;
-   double x=2*TMath::Pi()*(alpha*pimass/q);
-   double weight = 1;
+   double x=2.0*TMath::Pi()*(alpha*pimass/q);
+   double weight = 1.0;
    //double weight = 1.15; //for syst. +15%
    //double weight = 0.85; //for syst. -15%
-   return weight*( (1.-TMath::Exp(-x))/x -1 ) + 1;
+   return weight*( (1.-TMath::Exp(-x)) / x - 1.0 ) + 1.0;
 }
 
 /*
