@@ -122,8 +122,8 @@ THnSparseD *hist_q3D_OS_gen_INV = new THnSparseD("hist_q3D_OS_gen_INV", "hist_q3
 THnSparseD *hist_q3D_OS_gen_ROT = new THnSparseD("hist_q3D_OS_gen_ROT", "hist_q3D_OS_gen_ROT", 5, bins_q3D, xmin_q3D, xmax_q3D);
 THnSparseD *hist_q3D_OS_gen_MIX = new THnSparseD("hist_q3D_OS_gen_MIX", "hist_q3D_OS_gen_MIX", 5, bins_q3D, xmin_q3D, xmax_q3D);
 
-TH2D *hist_dpt_cos_SS = new TH2D("hist_dpt_cos_SS", "hist_dpt_cos_SS",1000, 0.99910, 1.0001, 100, -0.25, 0.25);
-TH2D *hist_dpt_cos_OS = new TH2D("hist_dpt_cos_OS", "hist_dpt_cos_OS",1000, 0.99910, 1.0001, 100, -0.25, 0.25);
+TH2D *hist_dpt_cos_SS = new TH2D("hist_dpt_cos_SS", "hist_dpt_cos_SS",1000, 0.99910, 1.0001, 100, 0, 0.25);
+TH2D *hist_dpt_cos_OS = new TH2D("hist_dpt_cos_OS", "hist_dpt_cos_OS",1000, 0.99910, 1.0001, 100, 0, 0.25);
 TH1D *hist_pairSS_Mass = new TH1D("hist_pairSS_Mass", "Invariant mass same-sign tracks", 500, 0, 1.0);
 TH1D *hist_pairOS_Mass = new TH1D("hist_pairOS_Mass", "Invariant mass opposite-sign tracks", 500, 0, 1.0);
 
