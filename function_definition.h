@@ -109,12 +109,12 @@ Return the weight factor due to Coloumb repulsion [Gamow] same charge
 --> Arguments
 q: q invariant
 */
-const double CoulombSS(const double &q){
-   const Double_t alpha=1./137.;
-   Double_t x=2.0*TMath::Pi()*(alpha*pimass/q);
-   Double_t weight = 1.0;
-   //Double_t weight = 1.15; //for syst. +15%
-   //Double_t weight = 0.85; //for syst. -15%
+const double CoulombSS(const double &q, int systematic){
+   const double alpha=1./137.;
+   double x=2.0*TMath::Pi()*(alpha*pimass/q);
+   double weight = 1.0;
+   if(systematic == 9) weight = 1.15; //for syst. +15%
+   if(systematic == 10) weight = 0.85; //for syst. -15%
    return weight*( (TMath::Exp(x) - 1.0)/ x - 1.0 ) + 1.0;
 }
 
@@ -123,12 +123,12 @@ Return the weight factor due to Coloumb attraction [Gamow] opposite charge
 --> Arguments
 q: q invariant
 */
-const double CoulombOS(const double &q){
+const double CoulombOS(const double &q, int systematic){
    const double alpha=1./137.;
    double x=2.0*TMath::Pi()*(alpha*pimass/q);
    double weight = 1.0;
-   //double weight = 1.15; //for syst. +15%
-   //double weight = 0.85; //for syst. -15%
+   if(systematic == 9) weight = 1.15; //for syst. +15%
+   if(systematic == 10) weight = 0.85; //for syst. -15%
    return weight*( (1.-TMath::Exp(-x)) / x - 1.0 ) + 1.0;
 }
 
@@ -139,7 +139,7 @@ tracks: vector with track informations
 tracks_charge: vector with track charge informations
 tracks_weight: vector with track efficiency informations
 */
-void twoparticlecorrelation(std::vector<ROOT::Math::PtEtaPhiMVector> tracks, std::vector<int> tracks_charge, std::vector<double> tracks_weight, TH1D* pairmass_samesign, TH2D* costhetadpt_samesign, THnSparse* histo_2pcorr_samesign,  THnSparse* histo_2pcorr_samesign_inverted,  THnSparse* histo_2pcorr_samesign_rotated, THnSparse* histo_2pcorr_samesign3D,  THnSparse* histo_2pcorr_samesign3D_inverted,  THnSparse* histo_2pcorr_samesign3D_rotated, TH1D* pairmass_oppsign, TH2D* costhetadpt_oppsign, THnSparse* histo_2pcorr_oppsign, THnSparse* histo_2pcorr_oppsign_inverted, THnSparse* histo_2pcorr_oppsign_rotated, THnSparse* histo_2pcorr_oppsign3D, THnSparse* histo_2pcorr_oppsign3D_inverted, THnSparse* histo_2pcorr_oppsign3D_rotated, int cent, bool docostdptcut, bool do_hbt3d, bool dogamovcorrection){
+void twoparticlecorrelation(std::vector<ROOT::Math::PtEtaPhiMVector> tracks, std::vector<int> tracks_charge, std::vector<double> tracks_weight, TH1D* pairmass_samesign, TH2D* costhetadpt_samesign, THnSparse* histo_2pcorr_samesign,  THnSparse* histo_2pcorr_samesign_inverted,  THnSparse* histo_2pcorr_samesign_rotated, THnSparse* histo_2pcorr_samesign3D,  THnSparse* histo_2pcorr_samesign3D_inverted,  THnSparse* histo_2pcorr_samesign3D_rotated, TH1D* pairmass_oppsign, TH2D* costhetadpt_oppsign, THnSparse* histo_2pcorr_oppsign, THnSparse* histo_2pcorr_oppsign_inverted, THnSparse* histo_2pcorr_oppsign_rotated, THnSparse* histo_2pcorr_oppsign3D, THnSparse* histo_2pcorr_oppsign3D_inverted, THnSparse* histo_2pcorr_oppsign3D_rotated, int cent, bool docostdptcut, bool do_hbt3d, bool dogamovcorrection, int systematic){
 	// get correlation histograms
 	for (int a = 0; a < tracks.size(); a++){ // start loop over tracks
 		double eff_trk_a = tracks_weight[a];
@@ -183,8 +183,8 @@ void twoparticlecorrelation(std::vector<ROOT::Math::PtEtaPhiMVector> tracks, std
 			double coulomb_ss = 1.0;
 			double coulomb_os = 1.0;
 			if(dogamovcorrection){
-				coulomb_ss = CoulombSS(qinv);
-				coulomb_os = CoulombOS(qinv);		
+				coulomb_ss = CoulombSS(qinv,systematic);
+				coulomb_os = CoulombOS(qinv,systematic);		
 			}
 			
 			double costheta = TMath::Abs(tracks[a].Px()*tracks[b].Px() + tracks[a].Py()*tracks[b].Py() + tracks[a].Pz()*tracks[b].Pz())/(tracks[a].P()*tracks[b].P());

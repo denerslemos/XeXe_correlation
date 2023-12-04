@@ -32,12 +32,15 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 
 	clock_t sec_start, sec_end;
 	sec_start = clock(); // start timing measurement
+	TDatime* date = new TDatime(); // to add date in the output file
 
 	bool do_quicktest; if(doquicktest == 0){do_quicktest = false;}else{do_quicktest = true;}
 	bool is_MC; if(isMC == 0){is_MC = false;}else{is_MC = true;}
 	bool do_mixing; if(domixing == 0){do_mixing = true;}else{do_mixing = false;}
 	bool do_hbt3d; if(hbt3d == 0){do_hbt3d = true;}else{do_hbt3d = false;}
 	bool do_gamov; if(gamov == 0){do_gamov = false;}else{do_gamov = true;}
+	
+	if(syst == 9 || syst == 10) do_gamov = true;
 	
 	bool dosplit = false;
 	if(syst != 7) dosplit = true; 
@@ -52,6 +55,8 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 	if(syst == 6) systematics =  "centdown";
 	if(syst == 7) systematics =  "removeduplicatedcut";
 	if(syst == 8) systematics =  "removeNpixelhitcut";
+	if(syst == 9) systematics =  "gamovplus15";
+	if(syst == 10) systematics =  "gamovminus15";
 	
 	TApplication *a = new TApplication("a", 0, 0); // avoid issues with corrupted files
 
@@ -121,8 +126,8 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 
 		hlt_tree->GetEntry(i); // get events from ttree
 
-		if(i != 0 && (i % 10) == 0){double alpha = (double)i; cout << " Running -> percentage: " << std::setprecision(3) << ((alpha / nev) * 100) << "%" << endl;} // % processed
-		if(do_quicktest){if(i != 0 && i % 100 == 0 ) break;} // just for quick tests
+		if(i != 0 && (i % 1000) == 0){double alpha = (double)i; cout << " Running -> percentage: " << std::setprecision(3) << ((alpha / nev) * 100) << "%" << endl;} // % processed
+		if(do_quicktest){if(i != 0 && i % 10 == 0 ) break;} // just for quick tests
 
 		int cent;
 		if(syst == 5){ cent = (int) (0.98 * (float)hiBin / 0.95);
@@ -236,7 +241,7 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 
 		if(tracks_reco.size()>1){
 			Nevents->Fill(6); // filled after each event cut
-			twoparticlecorrelation(tracks_reco, track_charge_reco, track_weight_reco, hist_pairSS_Mass, hist_dpt_cos_SS, hist_qinv_SS, hist_qinv_SS_INV, hist_qinv_SS_ROT, hist_q3D_SS, hist_q3D_SS_INV, hist_q3D_SS_ROT, hist_pairOS_Mass, hist_dpt_cos_OS, hist_qinv_OS, hist_qinv_OS_INV, hist_qinv_OS_ROT, hist_q3D_OS, hist_q3D_OS_INV, hist_q3D_OS_ROT, cent, dosplit, do_hbt3d, do_gamov); // HBT correlations done at this step
+			twoparticlecorrelation(tracks_reco, track_charge_reco, track_weight_reco, hist_pairSS_Mass, hist_dpt_cos_SS, hist_qinv_SS, hist_qinv_SS_INV, hist_qinv_SS_ROT, hist_q3D_SS, hist_q3D_SS_INV, hist_q3D_SS_ROT, hist_pairOS_Mass, hist_dpt_cos_OS, hist_qinv_OS, hist_qinv_OS_INV, hist_qinv_OS_ROT, hist_q3D_OS, hist_q3D_OS_INV, hist_q3D_OS_ROT, cent, dosplit, do_hbt3d, do_gamov, syst); // HBT correlations done at this step
 			track_4vector.push_back(tracks_reco); // save 4 vector for mixing
 			track_charge_vector.push_back(track_charge_reco); // save charge vector for mixing
 			track_weights_vector.push_back(track_weight_reco); // save eff weight vector for mixing
@@ -273,7 +278,7 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 			} // End loop over gen tracks
 
 			if(tracks_gen.size()>1){
-				twoparticlecorrelation(tracks_gen, track_charge_gen, track_weight_gen, hist_pairSS_Mass_gen, hist_dpt_cos_SS_gen, hist_qinv_SS_gen, hist_qinv_SS_gen_INV, hist_qinv_SS_gen_ROT, hist_q3D_SS_gen, hist_q3D_SS_gen_INV, hist_q3D_SS_gen_ROT, hist_pairOS_Mass_gen, hist_dpt_cos_OS_gen, hist_qinv_OS_gen, hist_qinv_OS_gen_INV, hist_qinv_OS_gen_ROT, hist_q3D_OS_gen, hist_q3D_OS_gen_INV, hist_q3D_OS_gen_ROT, cent, dosplit, do_hbt3d, do_gamov); // HBT correlations done at this step
+				twoparticlecorrelation(tracks_gen, track_charge_gen, track_weight_gen, hist_pairSS_Mass_gen, hist_dpt_cos_SS_gen, hist_qinv_SS_gen, hist_qinv_SS_gen_INV, hist_qinv_SS_gen_ROT, hist_q3D_SS_gen, hist_q3D_SS_gen_INV, hist_q3D_SS_gen_ROT, hist_pairOS_Mass_gen, hist_dpt_cos_OS_gen, hist_qinv_OS_gen, hist_qinv_OS_gen_INV, hist_qinv_OS_gen_ROT, hist_q3D_OS_gen, hist_q3D_OS_gen_INV, hist_q3D_OS_gen_ROT, cent, dosplit, do_hbt3d, do_gamov, syst); // HBT correlations done at this step
 				track_4vector_gen.push_back(tracks_gen); // save 4 vector for mixing
 				track_charge_vector_gen.push_back(track_charge_gen); // save charge vector for mixing
 				track_weights_vector_gen.push_back(track_weight_gen); // save eff weight vector for mixing
@@ -290,9 +295,18 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 	if(is_MC && do_mixing){MixEvents(true, mincentormult, Nmixevents, centrality_vector_gen, multiplicity_vector_gen, vz_vector_gen, minvz, track_4vector_gen, track_charge_vector_gen, track_weights_vector_gen, hist_qinv_SS_gen_MIX, hist_q3D_SS_gen_MIX, hist_qinv_OS_gen_MIX, hist_q3D_OS_gen_MIX, dosplit, do_hbt3d);}
 
 	
+	// Output file name
+	cout << endl;
+	cout << "Writing histograms on ";
+	cout << endl;
+
+	// Make an output file
+	string file_output = Form("%s_syst_%s_Nmix_%i_Mixint_%i_Vzint_%.f_on_%i", ouputfile.Data(), systematics.Data(), Nmixevents, mincentormult, minvz,date->GetDate()); // output file
+	std::replace(file_output.begin(), file_output.end(), '.', 'p'); // replace . to p	
+
 	// Open, write and close the output file
-	TFile *MyFile = new TFile(Form("%s_%s_Nmix_%i.root", ouputfile.Data(), systematics.Data(), Nmixevents), "RECREATE");
-	if(MyFile->IsOpen()) cout << "output file: " << Form("%s_%s_Nmix_%i.root", ouputfile.Data(), systematics.Data(), Nmixevents) << endl;
+	TFile *MyFile = new TFile(Form("%s.root", file_output.c_str()), "RECREATE");
+	if(MyFile->IsOpen()) cout << "output file: " << file_output.c_str() << ".root" << endl;
 	MyFile->cd(); 
 
 	// Write in different folders (see histogram_definition.h)

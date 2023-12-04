@@ -216,7 +216,6 @@ void sw2(){
 	hist_qinv_OS_INV->GetAxis(2)->Set(bins_qinv[2],CentBins);
 	hist_qinv_OS_ROT->GetAxis(2)->Set(bins_qinv[2],CentBins);
 	hist_qinv_OS_MIX->GetAxis(2)->Set(bins_qinv[2],CentBins);
-
 	hist_q3D_SS->GetAxis(3)->Set(bins_q3D[3],KtBins);
 	hist_q3D_SS_INV->GetAxis(3)->Set(bins_q3D[3],KtBins);
 	hist_q3D_SS_ROT->GetAxis(3)->Set(bins_q3D[3],KtBins);
