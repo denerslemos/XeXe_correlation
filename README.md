@@ -1,1 +1,2 @@
-# XeXe_correlation
+# XeXe HBT correlation code
+
