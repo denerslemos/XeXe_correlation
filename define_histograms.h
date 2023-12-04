@@ -33,12 +33,12 @@ const int nKtBins = 6; // number of average transverse momentum bins
 double KtBins[nKtBins+1] = {0.1,0.3,0.4,0.5,0.6,0.7,1.0}; 
 
 // centrality
-const int nCentBins = 5; // number of centrality bins
-double CentBins[nCentBins+1] = {0.0, 20.0, 60.0, 100.0, 140.0, 200.0}; // 0-10%, 10-30%, 30-50%, 50-70%, 70-100% (0.5 in 0.5%)
+//const int nCentBins = 5; // number of centrality bins
+//double CentBins[nCentBins+1] = {0.0, 20.0, 60.0, 100.0, 140.0, 200.0}; // 0-10%, 10-30%, 30-50%, 50-70%, 70-100% (0.5 in 0.5%)
 
 // multiplicity
-//const int nCentBins = 24; // number of multiplicity bins
-//double CentBins[nCentBins+1] = {10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0, 110.0, 120.0, 130.0, 140.0, 150.0, 160.0, 170.0, 180.0, 190.0, 200.0, 210.0, 220.0, 230.0, 240.0, 250.0};  // multiplicity bins to match PbPb
+const int nCentBins = 24; // number of multiplicity bins
+double CentBins[nCentBins+1] = {10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0, 110.0, 120.0, 130.0, 140.0, 150.0, 160.0, 170.0, 180.0, 190.0, 200.0, 210.0, 220.0, 230.0, 240.0, 250.0};  // multiplicity bins to match PbPb
 
 // Event histograms
 TH1I *Nevents = new TH1I("Nevents", "Nevents", 10, 0, 10);
