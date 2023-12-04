@@ -18,12 +18,12 @@ void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_m
 	  std::vector<double> Trk_eff_nevt_trg_vec = Track_Eff_Vector[nevt_trg]; // track efficiency vector for each trigger event
       int nMix_nevt_trg = Trk_nevt_trg_vec.size(); // track vector size for triggers
 
-      int trkloop_start, trkloop_end;
-      float wrap_evnt = 0.7 * aux_n_evts;
-      if( nevt_trg < (int) wrap_evnt ){ trkloop_start = nevt_trg + 1; trkloop_end = aux_n_evts;}
-      else if( nevt_trg >= (int) wrap_evnt ){ trkloop_start = 0; trkloop_end = aux_n_evts;}
+      int assloop_start, assloop_end;
+      float wrap_evnt = 0.6 * aux_n_evts;
+      if( nevt_trg < (int) wrap_evnt ){ assloop_start = nevt_trg + 1; assloop_end = aux_n_evts;}
+      else if( nevt_trg >= (int) wrap_evnt ){ assloop_start = 0; assloop_end = aux_n_evts;}
       
-      for (int nevt_assoc = trkloop_start; nevt_assoc < trkloop_end; nevt_assoc++){
+      for (int nevt_assoc = assloop_start; nevt_assoc < assloop_end; nevt_assoc++){
 
          if(nevt_trg == nevt_assoc) continue; // avoid same event
          if(use_centrality){if(fabs(ev_centrality[nevt_trg] - ev_centrality[nevt_assoc]) > centrality_or_ntrkoff_int) continue;
