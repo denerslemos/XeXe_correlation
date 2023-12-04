@@ -15,6 +15,7 @@ parser.add_option('-f', '--jobflav', dest='jobflavour', help='job flavour (espre
 parser.add_option('-c', '--ncpu', dest='numberofcpu', help='number of cpu requested (2GB per cpu)', default='1', type='int')
 parser.add_option('-n', '--njobs', dest='numberofjobs', help='number of jobs to be submitted (integer)', default='1', type='int')
 parser.add_option('-s', '--subfiles', dest='subfiles', help='HTCondor submission file', default='HTcondor_sub_data_', type='string')
+parser.add_option('-u', '--uncertanties', dest='uncertanties', help='Systematic uncertainties number', default='0', type='int')
 (opt, args) = parser.parse_args()
 inFiles = opt.infiles
 outFiles = opt.outputfiles
@@ -22,6 +23,7 @@ jobFlavour = opt.jobflavour
 nCpu = opt.numberofcpu
 nJobs = opt.numberofjobs
 subFiles = opt.subfiles
+uncerSys = opt.uncertanties
 
 ''' Read list of files '''
 listOfFiles = open(inFiles+'.txt', 'r')
@@ -55,7 +57,7 @@ if(ratio == len(Lines)):
 log        = cond/'''+subFiles+'''.log
 output     = cond/'''+subFiles+'''.out
 error      = cond/'''+subFiles+'''.err
-arguments = '''+inFiles+'''.txt '''+str(outFiles)+''' 0 0 0 10 2 1.0 0 0 0 0
+arguments = '''+inFiles+'''.txt '''+str(outFiles)+''' 0 0 0 10 2 1.0 0 0 0 '''+str(uncerSys)+'''
 queue
 '''
 
@@ -75,7 +77,7 @@ elif(ratio != len(Lines)):
 log        = cond/'''+subFiles+'''_part_'''+str(i)+'''.log
 output     = cond/'''+subFiles+'''_part_'''+str(i)+'''.out
 error      = cond/'''+subFiles+'''_part_'''+str(i)+'''.err
-arguments = '''+inFiles+'''_part'''+str(i)+'''.txt '''+str(outFiles)+'''_job_'''+str(i)+''' 0 0 0 10 2 1.0 0 0 0 0
+arguments = '''+inFiles+'''_part'''+str(i)+'''.txt '''+str(outFiles)+'''_job_'''+str(i)+''' 0 0 0 10 2 1.0 0 0 0 '''+str(uncerSys)+'''
 queue
 '''
 		command_lines += temp
@@ -89,7 +91,7 @@ elif(ratio == 1):
 log        = cond/'''+subFiles+'''_part_'''+str(i)+'''.log
 output     = cond/'''+subFiles+'''_part_'''+str(i)+'''.out
 error      = cond/'''+subFiles+'''_part_'''+str(i)+'''.err
-arguments = '''+inFiles+'''_part'''+str(i)+'''.txt '''+str(outFiles)+'''_job_'''+str(i)+''' 0 0 0 10 2 1.0 0 0 0 0
+arguments = '''+inFiles+'''_part'''+str(i)+'''.txt '''+str(outFiles)+'''_job_'''+str(i)+''' 0 0 0 10 2 1.0 0 0 0 '''+str(uncerSys)+'''
 queue
 '''
 		command_lines += temp
