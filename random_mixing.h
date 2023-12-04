@@ -54,8 +54,8 @@ void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_m
 				double qlong = GetQlongLCMS(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix]);
 				double qout = GetQout(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix]);
 				double qside = GetQside(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix]);
-				double x_2pc_hbt[3]={qinv, kt, (double)ev_centrality[nevt_trg]}; 
-				double x_2pc_hbt_3D[5]={qlong, qout, qside, kt, (double)ev_centrality[nevt_trg]}; 
+				double x_2pc_hbt[3]={qinv, kt, (double)ev_multiplicity[nevt_trg]}; 
+				double x_2pc_hbt_3D[5]={qlong, qout, qside, kt, (double)ev_multiplicity[nevt_trg]}; 
 				if(Trk_chg_nevt_trg_vec[imix]*Trk_chg_nevt_ass_vec[iimix] > 0){
 					histo_SS->Fill(x_2pc_hbt,tot_eff);
 					if(do_hbt3d) histo_SS3D->Fill(x_2pc_hbt_3D,tot_eff);
