@@ -5,7 +5,7 @@ import os.path
 import optparse
 
 outputfolder = "/eos/user/d/ddesouza/XeXehistos"
-inPut = 'XeXeMB'
+inPut = 'XeXeMB_centrality'
 systematics = 0
 
 os.system("mkdir -p cond")
