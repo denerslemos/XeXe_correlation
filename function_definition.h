@@ -21,7 +21,7 @@ dcazerr: track DCA in the longitudinal plane uncertainty
 int get_Ntrkoff(int size, float *pt, float *eta, int *charge, bool *hp, float *pterr, float *dcaxy, float *dcaxyerr,  float *dcaz, float *dcazerr){
 	int Ntrk_off = 0;
 	for(int ii=0; ii<size; ii++){ 
-		if(pt[ii] <= 0.4) continue;
+		if(pt[ii] <= 0.3) continue;
 		if(fabs(eta[ii]) > 2.4) continue; 
 		if(fabs(charge[ii]) == 0)continue;
 		if(hp[ii] == false) continue;
