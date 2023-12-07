@@ -161,7 +161,8 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 		// Fill event histograms
 		centrality->Fill(cent);
 		vzhist->Fill(vertexz);
-		
+
+		if(Ntroff < 10) continue; 		
 		if(!use_centrality) if(Ntroff > 250) continue; //remove events with multiplicity > 250
 		Nevents->Fill(5); // filled after each event cut	
 
