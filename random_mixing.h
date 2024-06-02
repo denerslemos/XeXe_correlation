@@ -9,8 +9,7 @@ void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_m
    int tenper = round(0.1*aux_n_evts);   
 
    cout << "Running ... " << endl;
-   cout << "Total # of events: " << aux_n_evts << endl;
-   cout << "10% of events: " << tenper << endl;   
+   cout << "Total # of events: " << aux_n_evts << endl; 
    
    for(int nevt_trg = 0; nevt_trg < aux_n_evts; nevt_trg++){ // first loop over all events
 
