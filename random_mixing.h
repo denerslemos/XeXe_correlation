@@ -7,9 +7,13 @@ void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_m
 
    int aux_n_evts = (int) vtx_z_vec.size(); // total number of events
    int tenper = (int)0.1*aux_n_evts;   
+
+   cout << "Running ... " << endl;
+   cout << "Total # of events: " << aux_n_evts << endl;
+   cout << "10% of events: " << tenper << endl;   
+   
    for(int nevt_trg = 0; nevt_trg < aux_n_evts; nevt_trg++){ // first loop over all events
 
-	  if(nevt_trg == 0) cout << "Running ... " << endl;
 	  if(nevt_trg != 0 && (nevt_trg % tenper) == 0){cout << nevt_trg << " out of " << aux_n_evts << endl;} // % processed
 
       std::vector<ROOT::Math::PtEtaPhiMVector> Trk_nevt_trg_vec = Track_Vector[nevt_trg]; // track 4-vector for each trigger event
