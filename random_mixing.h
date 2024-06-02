@@ -15,7 +15,7 @@ void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_m
       int nMix_nevt_trg = Trk_nevt_trg_vec.size(); // track vector size for triggers
 
       int assloop_start, assloop_end;
-      float wrap_evnt = 0.8 * aux_n_evts;
+      float wrap_evnt = 0.7 * aux_n_evts;
       if( nevt_trg < wrap_evnt ){ assloop_start = nevt_trg + 1; assloop_end = aux_n_evts;}
       else if( nevt_trg >= wrap_evnt ){ assloop_start = 0; assloop_end = aux_n_evts;}
 
