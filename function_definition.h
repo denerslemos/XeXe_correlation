@@ -182,7 +182,6 @@ void twoparticlecorrelation(std::vector<ROOT::Math::PtEtaPhiMVector> tracks, std
 			double eff_trk_b = tracks_weight[b];
 			double tot_eff = eff_trk_a*eff_trk_b;
 
-			if(fabs(tracks[a].Eta() - tracks[b].Eta()) == 0 && fabs(tracks[a].Phi() - tracks[b].Phi()) == 0) continue;
 			if(docostdptcut){if(splitcomb(tracks[a],tracks[b],coscut,dptcut)) continue;}
 
         	ROOT::Math::PtEtaPhiMVector psum2 = tracks[a] + tracks[b];

@@ -49,7 +49,7 @@ TH1D *vzhist = new TH1D("vzhist", "vzhist", 80, -20., 20.);
 TH1D *multiplicity = new TH1D("multiplicity", "multiplicity", 400, 0.0, 4000.0);
 TH2D *MultVSCent = new TH2D("MultVSCent", "MultVSCent", 200, 0.0, 4000.0, 100, 0.0, 200.0);
 TH1I *NeventsAss = new TH1I("NeventsAss", "NeventsAss", 11, 0, 11);
-
+TH1I *NeventsAssGEN = new TH1I("NeventsAssGEN", "NeventsAssGEN", 11, 0, 11);
 
 //histograms before selection
 TH1D *dxyoversigmadxy_beforeselection = new TH1D("dxyoversigmadxy_beforeselection", "dxyoversigmadxy_beforeselection", 100, -6.0, 6.0);
@@ -139,6 +139,7 @@ void sw2(){
 
 	Nevents->Sumw2();
 	NeventsAss->Sumw2();
+	NeventsAssGEN->Sumw2();
 	centrality_beforefilters->Sumw2();
 	centrality->Sumw2();
 	vzhist->Sumw2();
@@ -287,6 +288,7 @@ void write_eventQA(){
 	multiplicity->Write();
 	MultVSCent->Write();
 	NeventsAss->Write();
+	NeventsAssGEN->Write();
 }
 
 void write_trackQA(bool is_MC){

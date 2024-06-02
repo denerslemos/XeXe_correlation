@@ -3,7 +3,7 @@
 #define coscutmix 0.99996
 #define dptcutmix 0.04
 
-void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_mix, std::vector<int> ev_centrality, std::vector<int> ev_multiplicity, std::vector<double> vtx_z_vec, float vzcut, std::vector<std::vector<ROOT::Math::PtEtaPhiMVector>> Track_Vector, std::vector<std::vector<int>> Track_Chg_Vector, std::vector<std::vector<double>> Track_Eff_Vector, THnSparseD *histo_SS, THnSparseD *histo_SS3D, THnSparseD *histo_OS, THnSparseD *histo_OS3D, bool docostdptcut, bool do_hbt3d, bool dogamovcorrection, int systematic){
+void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_mix, std::vector<int> ev_centrality, std::vector<int> ev_multiplicity, std::vector<double> vtx_z_vec, float vzcut, std::vector<std::vector<ROOT::Math::PtEtaPhiMVector>> Track_Vector, std::vector<std::vector<int>> Track_Chg_Vector, std::vector<std::vector<double>> Track_Eff_Vector, THnSparseD *histo_SS, THnSparseD *histo_SS3D, THnSparseD *histo_OS, THnSparseD *histo_OS3D, bool docostdptcut, bool do_hbt3d, bool dogamovcorrection, int systematic, TH1I* NeventsAss){
 
    int aux_n_evts = (int) vtx_z_vec.size(); // total number of events
    
@@ -41,7 +41,6 @@ void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_m
             for(int iimix = 0; iimix < nMix_nevt_ass; iimix++){
 				double eff_trk_iimix = Trk_chg_nevt_ass_vec[iimix];
 				double tot_eff = eff_trk_imix * eff_trk_iimix;
-				if(fabs(Trk_nevt_trg_vec[imix].Eta() - Track_nevt_ass_vec[iimix].Eta()) == 0 && fabs(Trk_nevt_trg_vec[imix].Phi() - Track_nevt_ass_vec[iimix].Phi()) == 0) continue;
 				if(docostdptcut){ if(splitcomb(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix],coscutmix,dptcutmix)) continue; }
         		ROOT::Math::PtEtaPhiMVector psum2 = Trk_nevt_trg_vec[imix] + Track_nevt_ass_vec[iimix];
         		double kt = (psum2.Pt())/2.;
@@ -66,6 +65,7 @@ void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_m
 				}						
             }
          } // end of correlation loop
+         NeventsAss->Fill(n_associated);
          if(n_associated == nEvt_to_mix)break;
       }
    } // end of all events loop
