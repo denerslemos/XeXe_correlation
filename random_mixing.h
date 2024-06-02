@@ -20,14 +20,13 @@ void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_m
 	  std::vector<double> Trk_eff_nevt_trg_vec = Track_Eff_Vector[nevt_trg]; // track efficiency vector for each trigger event
       int nMix_nevt_trg = Trk_nevt_trg_vec.size(); // track vector size for triggers
 
-      int assloop_start, assloop_end;
-      float wrap_evnt = 0.7 * aux_n_evts;
-      if( nevt_trg < wrap_evnt ){ assloop_start = nevt_trg + 1; assloop_end = aux_n_evts;}
-      else if( nevt_trg >= wrap_evnt ){ assloop_start = 0; assloop_end = aux_n_evts;}
+      int assloop_start;
+      float wrap_evnt = (float) 0.7 * aux_n_evts;
+      if( nevt_trg < round(wrap_evnt) ){ assloop_start = nevt_trg + 1; } else { assloop_start = 0; }
 
       int n_associated = 0; // counter used to find the number to mix
       
-      for (int nevt_assoc = assloop_start; nevt_assoc < assloop_end; nevt_assoc++){
+      for (int nevt_assoc = assloop_start; nevt_assoc < aux_n_evts; nevt_assoc++){
 
          if(nevt_trg == nevt_assoc) continue; // avoid same event
          if(use_centrality){ if(fabs(ev_centrality[nevt_trg] - ev_centrality[nevt_assoc]) > centrality_or_ntrkoff_int) continue;
@@ -71,8 +70,8 @@ void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_m
 				}						
             }
          } // end of correlation loop
-         NeventsAss->Fill(n_associated);
          if(n_associated == nEvt_to_mix)break;
       }
+      NeventsAss->Fill(n_associated);
    } // end of all events loop
 }

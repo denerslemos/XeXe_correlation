@@ -1,22 +1,6 @@
 #include "call_libraries.h"  // call libraries from ROOT and C++
 #include "random_mixing.h" // random mixing
 
-//define vectors for mixing
-// reco jet  + reco track
-std::vector<int> centrality_vector;
-std::vector<int> multiplicity_vector;
-std::vector<double> vz_vector;
-std::vector<std::vector<ROOT::Math::PtEtaPhiMVector>> track_4vector;
-std::vector<std::vector<double>> track_weights_vector;
-std::vector<std::vector<int>> track_charge_vector;
-
-std::vector<int> centrality_vector_gen;
-std::vector<int> multiplicity_vector_gen;
-std::vector<double> vz_vector_gen;
-std::vector<std::vector<ROOT::Math::PtEtaPhiMVector>> track_4vector_gen;
-std::vector<std::vector<double>> track_weights_vector_gen;
-std::vector<std::vector<int>> track_charge_vector_gen;
-
 // define the bins
 // qinv
 const int nQBins = 200;   // number of qinv bins
@@ -50,6 +34,8 @@ TH1D *multiplicity = new TH1D("multiplicity", "multiplicity", 400, 0.0, 4000.0);
 TH2D *MultVSCent = new TH2D("MultVSCent", "MultVSCent", 200, 0.0, 4000.0, 100, 0.0, 200.0);
 TH1I *NeventsAss = new TH1I("NeventsAss", "NeventsAss", 11, 0, 11);
 TH1I *NeventsAssGEN = new TH1I("NeventsAssGEN", "NeventsAssGEN", 11, 0, 11);
+TH1D *CheckNtrk = new TH1D("CheckNtrk", "CheckNtrk", 20000, 0, 20000);
+
 
 //histograms before selection
 TH1D *dxyoversigmadxy_beforeselection = new TH1D("dxyoversigmadxy_beforeselection", "dxyoversigmadxy_beforeselection", 100, -6.0, 6.0);
@@ -146,6 +132,7 @@ void sw2(){
 	vzhist_beforefilters->Sumw2();
 	multiplicity->Sumw2();
 	MultVSCent->Sumw2();
+	CheckNtrk->Sumw2();
 	ptresolution_beforeselection->Sumw2();
 	dxyoversigmadxy_beforeselection->Sumw2();
 	dzoversigmadz_beforeselection->Sumw2();
@@ -289,6 +276,7 @@ void write_eventQA(){
 	MultVSCent->Write();
 	NeventsAss->Write();
 	NeventsAssGEN->Write();
+	CheckNtrk->Write();
 }
 
 void write_trackQA(bool is_MC){
