@@ -87,29 +87,29 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 
 	// Read the trees to be added in the Chain
 	TChain *hlt_tree = new TChain("hltanalysis/HltTree"); // for HLT trigger
-	TChain *trk_tree = new TChain("ppTrack/trackTree"); // for tracking
 	TChain *hea_tree = new TChain("hiEvtAnalyzer/HiTree"); // event quantities
+	TChain *ski_tree = new TChain("skimanalysis/HltTree"); // event filters
+	TChain *trk_tree = new TChain("ppTrack/trackTree"); // for tracking
 	TChain *gen_tree;
 	if(is_MC){gen_tree = new TChain("HiGenParticleAna/hi");} // MC gen particles
-	TChain *ski_tree = new TChain("skimanalysis/HltTree"); // event filters
 	// loop to add all the trees to the chain
 	for (std::vector<TString>::iterator listIterator = file_name_vector.begin(); listIterator != file_name_vector.end(); listIterator++){
 		TFile *testfile = TFile::Open(*listIterator,"READ");
 		if(testfile && !testfile->IsZombie() && !testfile->TestBit(TFile::kRecovered)){ // safety against corrupted files
 			cout << "Adding file " << *listIterator << " to the chains" << endl; // adding files to the chains for each step
 			hlt_tree->Add(*listIterator);
-			trk_tree->Add(*listIterator);
 			hea_tree->Add(*listIterator);
 			ski_tree->Add(*listIterator);
+			trk_tree->Add(*listIterator);
 			if(is_MC){gen_tree->Add(*listIterator);}
 		}else{cout << "File: " << *listIterator << " failed!" << endl;}
 	}
     file_name_vector.clear();
 	
 	// Connect all chains
-	hlt_tree->AddFriend(trk_tree);
 	hlt_tree->AddFriend(hea_tree);
 	hlt_tree->AddFriend(ski_tree);
+	hlt_tree->AddFriend(trk_tree);
 	if(is_MC){hlt_tree->AddFriend(gen_tree);}
 	
     // Read the desired branchs in the trees
@@ -162,8 +162,9 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 		centrality->Fill(cent);
 		vzhist->Fill(vertexz);
 
-		if(Ntroff < 10) continue; 		
-		if(!use_centrality) if(Ntroff > 250) continue; //remove events with multiplicity > 250
+		if(Ntroff < 10) continue; // just to remove MB track inneficiency		
+		if(!use_centrality) if(Ntroff > 250) continue; // remove events with multiplicity > 250
+		if(use_centrality) if(hiBin > 180) continue; // remove 90% events due EM contamination
 		Nevents->Fill(5); // filled after each event cut	
 
 		// Vectors used for objects
@@ -177,9 +178,11 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 		// ------------------- Reconstruction level (Data and MC) ----------------------------
 		// Start loop over reco tracks (trksize is number of reco tracks)
 
+		if(ntrk < 2) continue; // speed up code
+		if(ntrk > 9999) continue; // reduces PU effect
+
 		for (int j = 0; j < ntrk; j++){ 
-		
-			if(ntrk < 2) continue;
+	
 		    // Track QA array
 			double x_reco_trk[5]={trkpt[j],trketa[j],trkphi[j],(double) trkcharge[j],(double) cent}; 
 
@@ -247,7 +250,7 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 		multiplicity->Fill(Ntroff);
 		MultVSCent->Fill(Ntroff,cent);
 
-		if(tracks_reco.size()>1){
+		if(tracks_reco.size() > 1){
 			Nevents->Fill(6); // filled after each event cut
 			if(use_centrality) twoparticlecorrelation(tracks_reco, track_charge_reco, track_weight_reco, hist_pairSS_Mass, hist_dpt_cos_SS, hist_qinv_SS, hist_qinv_SS_INV, hist_qinv_SS_ROT, hist_q3D_SS, hist_q3D_SS_INV, hist_q3D_SS_ROT, hist_pairOS_Mass, hist_dpt_cos_OS, hist_qinv_OS, hist_qinv_OS_INV, hist_qinv_OS_ROT, hist_q3D_OS, hist_q3D_OS_INV, hist_q3D_OS_ROT, cent, dosplit, do_hbt3d, do_gamov, syst); // HBT correlations done at this step
 			if(!use_centrality) twoparticlecorrelation(tracks_reco, track_charge_reco, track_weight_reco, hist_pairSS_Mass, hist_dpt_cos_SS, hist_qinv_SS, hist_qinv_SS_INV, hist_qinv_SS_ROT, hist_q3D_SS, hist_q3D_SS_INV, hist_q3D_SS_ROT, hist_pairOS_Mass, hist_dpt_cos_OS, hist_qinv_OS, hist_qinv_OS_INV, hist_qinv_OS_ROT, hist_q3D_OS, hist_q3D_OS_INV, hist_q3D_OS_ROT, Ntroff, dosplit, do_hbt3d, do_gamov, syst); // HBT correlations done at this step
@@ -262,14 +265,14 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 		tracks_reco.clear();
 		track_weight_reco.clear();
 		track_charge_reco.clear();
-		tracks_gen.clear();
-		track_weight_gen.clear();
-		track_charge_gen.clear();
 		
 		// Generator level --> MC only
 		if(is_MC){
+
+			if(gen_trkpt->size() < 2) continue;
+			if(gen_trkpt->size() > 9999) continue;
+
 			for(int j = 0; j < (int)gen_trkpt->size(); j++){ 
-				if(gen_trkpt->size() < 2) continue;
 				// Kinematic and charge cuts
 				if(fabs(gen_trketa->at(j)) > 2.4) continue;
 				if(gen_trkpt->at(j) <= 0.3)continue;
@@ -296,20 +299,19 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 				multiplicity_vector_gen.push_back(Ntroff); // save multiplicity vector for mixing
 				vz_vector_gen.push_back(vertexz); // save vz vector for mixing
 			}
+
 			tracks_gen.clear();
 			track_weight_gen.clear();
 			track_charge_gen.clear();
-			tracks_gen.clear();
-			track_weight_gen.clear();
-			track_charge_gen.clear();
+
 		} // End of MC IF statement
 		
 	} // End of event loop
 	
 	// do the mixing after the event selections
 	if(do_mixing) cout << "Time for mixing" << endl;
-	if(do_mixing) MixEvents(use_centrality, mincentormult, Nmixevents, centrality_vector, multiplicity_vector, vz_vector, minvz, track_4vector, track_charge_vector, track_weights_vector, hist_qinv_SS_MIX, hist_q3D_SS_MIX, hist_qinv_OS_MIX, hist_q3D_OS_MIX, dosplit, do_hbt3d);
-	if(is_MC && do_mixing){MixEvents(use_centrality, mincentormult, Nmixevents, centrality_vector_gen, multiplicity_vector_gen, vz_vector_gen, minvz, track_4vector_gen, track_charge_vector_gen, track_weights_vector_gen, hist_qinv_SS_gen_MIX, hist_q3D_SS_gen_MIX, hist_qinv_OS_gen_MIX, hist_q3D_OS_gen_MIX, dosplit, do_hbt3d);}
+	if(do_mixing) MixEvents(use_centrality, mincentormult, Nmixevents, centrality_vector, multiplicity_vector, vz_vector, minvz, track_4vector, track_charge_vector, track_weights_vector, hist_qinv_SS_MIX, hist_q3D_SS_MIX, hist_qinv_OS_MIX, hist_q3D_OS_MIX, dosplit, do_hbt3d, do_gamov, syst);
+	if(is_MC && do_mixing){MixEvents(use_centrality, mincentormult, Nmixevents, centrality_vector_gen, multiplicity_vector_gen, vz_vector_gen, minvz, track_4vector_gen, track_charge_vector_gen, track_weights_vector_gen, hist_qinv_SS_gen_MIX, hist_q3D_SS_gen_MIX, hist_qinv_OS_gen_MIX, hist_q3D_OS_gen_MIX, dosplit, do_hbt3d, do_gamov, syst);}
 
 	
 	// Output file name

@@ -19,9 +19,9 @@ std::vector<std::vector<int>> track_charge_vector_gen;
 
 // define the bins
 // qinv
-const int nQBins = 400;   // number of qinv bins
+const int nQBins = 200;   // number of qinv bins
 const double minQ = 0.0;  // minimum qinv
-const double maxQ = 4.0;  // maximumm qinv
+const double maxQ = 2.0;  // maximumm qinv
 
 // q3D
 const int nQBins3D = 100;   // number of q3D bins
@@ -34,7 +34,7 @@ double KtBins[nKtBins+1] = {0.1,0.3,0.4,0.5,0.6,0.7,1.0};
 
 // centrality
 const int nCentBins = 5; // number of centrality bins
-double CentBins[nCentBins+1] = {0.0, 20.0, 60.0, 100.0, 140.0, 200.0}; // 0-10%, 10-30%, 30-50%, 50-70%, 70-100% (0.5 in 0.5%)
+double CentBins[nCentBins+1] = {0.0, 20.0, 60.0, 100.0, 140.0, 200.0}; // 0-10%, 10-30%, 30-50%, 50-70%, 70-90% (0.5 in 0.5%)
 
 // multiplicity
 //const int nCentBins = 24; // number of multiplicity bins
