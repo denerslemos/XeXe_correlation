@@ -16,7 +16,7 @@ mincentormult: minimum centrality of multiplicity in the mixing
 minvz: minimum vertez between events in the mixing
 hbt3d: 0 with 3D and 1 without 3D
 gamov: 0 means no GAMOV Coulomb correction and > 0 means GAMOV is added
-centrality: 0 to use centrality and different than 0 for multiplicity. For multiplicity we may need to change the bins in define_histograms.h
+cent_bool: 0 to use centrality and different than 0 for multiplicity. For multiplicity we may need to change the bins in define_histograms.h
 syst:systematic uncertainties
 	--> 0: nominal
 	--> 1: |vz| < 3
@@ -63,8 +63,6 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 	
 	if(use_centrality){ systematics +=  "_cent"; } else { systematics +=  "_Ntroff"; }
 	
-	TApplication *a = new TApplication("a", 0, 0); // avoid issues with corrupted files
-
 	// Track or particle efficiency file
 	TFile *fileeff;
 	fileeff = TFile::Open("efftables/XeXe_eff_table_94x_cent.root");
@@ -86,7 +84,6 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 	inputfile.close();
 
 	// Read the trees to be added in the Chain
-	TChain *hlt_tree = new TChain("hltanalysis/HltTree"); // for HLT trigger
 	TChain *hea_tree = new TChain("hiEvtAnalyzer/HiTree"); // event quantities
 	TChain *ski_tree = new TChain("skimanalysis/HltTree"); // event filters
 	TChain *trk_tree = new TChain("ppTrack/trackTree"); // for tracking
@@ -94,31 +91,29 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 	if(is_MC){gen_tree = new TChain("HiGenParticleAna/hi");} // MC gen particles
 	// loop to add all the trees to the chain
 	for (std::vector<TString>::iterator listIterator = file_name_vector.begin(); listIterator != file_name_vector.end(); listIterator++){
-		TFile *testfile = TFile::Open(*listIterator,"READ");
+        TFile *testfile = TFile::Open(*listIterator,"READ");
 		if(testfile && !testfile->IsZombie() && !testfile->TestBit(TFile::kRecovered)){ // safety against corrupted files
-			cout << "Adding file " << *listIterator << " to the chains" << endl; // adding files to the chains for each step
-			hlt_tree->Add(*listIterator);
-			hea_tree->Add(*listIterator);
-			ski_tree->Add(*listIterator);
-			trk_tree->Add(*listIterator);
-			if(is_MC){gen_tree->Add(*listIterator);}
-		}else{cout << "File: " << *listIterator << " failed!" << endl;}
+		cout << "Adding file " << *listIterator << " to the chains" << endl; // adding files to the chains for each step
+		hea_tree->Add(*listIterator);
+		ski_tree->Add(*listIterator);
+		trk_tree->Add(*listIterator);
+		if(is_MC){gen_tree->Add(*listIterator);}
+		}else{cout << "File: " << *listIterator << " failed!" << endl;}		
 	}
-    file_name_vector.clear();
+	file_name_vector.clear();	
 	
 	// Connect all chains
-	hlt_tree->AddFriend(hea_tree);
-	hlt_tree->AddFriend(ski_tree);
-	hlt_tree->AddFriend(trk_tree);
-	if(is_MC){hlt_tree->AddFriend(gen_tree);}
+	hea_tree->AddFriend(ski_tree);
+	hea_tree->AddFriend(trk_tree);
+	if(is_MC){hea_tree->AddFriend(gen_tree);}
 	
     // Read the desired branchs in the trees
-	read_tree(hlt_tree, is_MC); // access the tree informations
+	read_tree(hea_tree, is_MC); // access the tree informations
 	
     // Use sumw2() to make sure about histogram uncertainties in ROOT
 	sw2(); 
 
-	int nevents = hlt_tree->GetEntries(); // number of events
+	int nevents = hea_tree->GetEntries(); // number of events
 	cout << endl;
 	cout << "Total number of events in those files: "<< nevents << endl;
 	cout << endl;
@@ -129,10 +124,10 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 	
 	for(int i = 0; i < nevents; i++){
 
-		hlt_tree->GetEntry(i); // get events from ttree
+		hea_tree->GetEntry(i); // get events from ttree
 
-		if(i != 0 && (i % 1000) == 0){double alpha = (double)i; cout << " Running -> percentage: " << std::setprecision(3) << ((alpha / nev) * 100) << "%" << endl;} // % processed
-		if(do_quicktest){if(i != 0 && i % 100 == 0 ) break;} // just for quick tests
+		if(i != 0 && (i % 100) == 0){double alpha = (double)i; cout << " Running -> percentage: " << std::setprecision(3) << ((alpha / nev) * 100) << "%" << endl;} // % processed
+		if(do_quicktest){if(i != 0 && i % 1000 == 0 ) break;} // just for quick tests
 
 		int cent;
 		if(syst == 5){ cent = (int) (0.98 * (float)hiBin / 0.95);
