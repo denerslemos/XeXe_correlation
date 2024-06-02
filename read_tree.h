@@ -13,25 +13,25 @@ int HfCoincFilter;
 
 // reco tracks
 int ntrk;                 // number of track
-float trkpt[14999];       // track pT
-float trketa[14999];      // track eta
-float trkphi[14999];      // track phi
-float trkpterr[14999];    // track pT error (uncertainty)
-float trkdcaxy[14999];    // track dxy impact parameter (transverse distance between primary vertex and collision - distance of closest approuch - DCA)
-float trkdcaz[14999];     // track dz impact parameter (longitudinal distance between primary vertex and collision - distance of closest approuch - DCA)
-float trkdcaxyerr[14999]; // track dxy error (uncertainty)
-float trkdcazerr[14999];  // track dxy error (uncertainty)
-float trkchi2[14999];     // track reconstruction chi2 of the fitting
-float pfEcal[14999];      // particle flow energy deposit in ECAL
-float pfHcal[14999];      // particle flow energy deposit in HCAL
-float trkmva[14999];      // track mva for each step
-int trkalgo[14999];       // track algorithm/step
-unsigned char trkndof[14999];       // track number of degrees of freedom in the fitting 
-int trkcharge[14999];     // track charge
-unsigned char trknhits[14999];      // number of hits in the tracker
-unsigned char trknlayer[14999];     // number of layers with measurement in the tracker
-unsigned char trkpixhits[14999];// number of hits in the pixel detector
-bool highpur[14999];      // tracker steps MVA selection
+float trkpt[9999];       // track pT
+float trketa[9999];      // track eta
+float trkphi[9999];      // track phi
+float trkpterr[9999];    // track pT error (uncertainty)
+float trkdcaxy[9999];    // track dxy impact parameter (transverse distance between primary vertex and collision - distance of closest approuch - DCA)
+float trkdcaz[9999];     // track dz impact parameter (longitudinal distance between primary vertex and collision - distance of closest approuch - DCA)
+float trkdcaxyerr[9999]; // track dxy error (uncertainty)
+float trkdcazerr[9999];  // track dxy error (uncertainty)
+float trkchi2[9999];     // track reconstruction chi2 of the fitting
+float pfEcal[9999];      // particle flow energy deposit in ECAL
+float pfHcal[9999];      // particle flow energy deposit in HCAL
+float trkmva[9999];      // track mva for each step
+int trkalgo[9999];       // track algorithm/step
+unsigned char trkndof[9999];       // track number of degrees of freedom in the fitting 
+int trkcharge[9999];     // track charge
+unsigned char trknhits[9999];      // number of hits in the tracker
+unsigned char trknlayer[9999];     // number of layers with measurement in the tracker
+unsigned char trkpixhits[9999];// number of hits in the pixel detector
+bool highpur[9999];      // tracker steps MVA selection
 
 // gen tracks
 std::vector<float> *gen_trkpt = 0;  // gen particle pT

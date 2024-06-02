@@ -21,7 +21,7 @@ void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_m
       int nMix_nevt_trg = Trk_nevt_trg_vec.size(); // track vector size for triggers
 
       int assloop_start;
-      float wrap_evnt = (float) 0.7 * aux_n_evts;
+      float wrap_evnt = (float) 0.75 * aux_n_evts;
       if( nevt_trg < round(wrap_evnt) ){ assloop_start = nevt_trg + 1; } else { assloop_start = 0; }
 
       int n_associated = 0; // counter used to find the number to mix
@@ -31,6 +31,9 @@ void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_m
          if(nevt_trg == nevt_assoc) continue; // avoid same event
          if(use_centrality){ if(fabs(ev_centrality[nevt_trg] - ev_centrality[nevt_assoc]) > centrality_or_ntrkoff_int) continue;
          }else{ if(fabs(ev_multiplicity[nevt_trg] - ev_multiplicity[nevt_assoc]) > centrality_or_ntrkoff_int) continue; }
+         
+         if(fabs(vtx_z_vec[nevt_trg]) > 8.0 && fabs(vtx_z_vec[nevt_trg]) < 10.0) vzcut = 2.0 * vzcut;
+         if(fabs(vtx_z_vec[nevt_trg]) > 10.0) vzcut = 5.0 * vzcut;
          if(fabs(vtx_z_vec[nevt_trg] - vtx_z_vec[nevt_assoc]) > vzcut) continue; // vz matching
 
          std::vector<ROOT::Math::PtEtaPhiMVector> Track_nevt_ass_vec = Track_Vector[nevt_assoc]; // track 4-vector for each associate event
