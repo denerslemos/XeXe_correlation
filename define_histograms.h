@@ -48,7 +48,7 @@ TH1D *vzhist_beforefilters = new TH1D("vzhist_beforefilters", "vzhist_beforefilt
 TH1D *vzhist = new TH1D("vzhist", "vzhist", 80, -20., 20.);
 TH1D *multiplicity = new TH1D("multiplicity", "multiplicity", 400, 0.0, 4000.0);
 TH2D *MultVSCent = new TH2D("MultVSCent", "MultVSCent", 200, 0.0, 4000.0, 100, 0.0, 200.0);
-TH1I *NeventsAss = new TH1I("NeventsAss", "NeventsAss", 11, 0, 11;
+TH1I *NeventsAss = new TH1I("NeventsAss", "NeventsAss", 11, 0, 11);
 
 
 //histograms before selection
