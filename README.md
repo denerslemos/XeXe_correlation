@@ -17,14 +17,14 @@ The code was created to generate histograms as function of centrality or multipl
 ```
 git clone https://github.com/denerslemos/XeXe_correlation.git
 ```
-- For the multiplicity dependency, I have use similar histograms as the ones used in previous PbPb analysis (FSQ-14-002) with bins from 20 to 250 (also matching pPb). This must run faster due the small amount of combinations. To get the multiplicity dependency code, use:
+You have to edit lines 7 and 11 of ```submit_cent.py```: outputfolder - output folder to store your own histograms; cmsswrepo - CMSSW repository CMSSW/src; pwdrepo - the repository where the code is; it is also possible to change the systematics by changing an integer as described in the beginning of the .C code.
+To run the codes you just need to:
 ```
-git clone https://github.com/denerslemos/XeXe_correlation.git --branch multiplicity
-```
-In both codes you will have to edit some shell files: i) in ```htsub.sh``` you have to edit lines 4 and 6 to add your own repository; ii) in ```submit.py``` you have to replace the output folder to your own and if is also possible to change the systematics by changing an integer as described in the beginning of the .C code.
-
-To run both codes you just need to:
-```
-python3 submit.py
+python3 submit_cent.py
 ```
 this will submit all condor jobs and produce the root files in the output folder.
+- For the multiplicity dependency, the same code can be used. I have used similar histograms as the ones used in previous PbPb analysis (FSQ-14-002) with bins from 10 to 250 (also matching pPb). This must run faster due the small amount of combinations. In this case you have to edit line 4 and 5 in ```correlation_XeXe.C```, just uncomment one and comment the other one.
+Also, submit the condor jobs using: 
+```
+python3 submit_mult.py
+```
