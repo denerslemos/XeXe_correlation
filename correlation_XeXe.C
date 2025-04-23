@@ -1,7 +1,7 @@
 #include "call_libraries.h" // call libraries from ROOT and C++
 #include "read_tree.h" // read the TChains
-#include "define_histograms.h" // histogram definition
 #include "tracking_correction.h" // tracking correction
+#include "define_histograms.h" // histogram definition
 #define pi_mass 0.1396
 
 /*
@@ -29,6 +29,12 @@ syst:systematic uncertainties
 	--> 8: removal of Npixel cut
 	--> 9: gamov + 15% weight
 	--> 10: gamov - 15% weight
+	--> 11: Number of mix events from 10 to 20
+	--> 12: Number of mix events from 10 to 5
+	--> 13: Number of vz separation btw events from 2cm to 3cm
+	--> 14: Number of vz separation btw events from 2cm to 1cm
+	--> 15: Number of multiplicity/centrality separation btw events from 5 to 10 units
+	--> 16: Number of multiplicity/centrality separation btw events from 5 to 3 units
 */
 void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doquicktest, int domixing, int Nmixevents, int mincentormult, float minvz, int hbt3d, int gamov, int cent_bool, int syst){
 
@@ -60,6 +66,12 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 	if(syst == 8) systematics =  "removeNpixelhitcut";
 	if(syst == 9) systematics =  "gamovplus15";
 	if(syst == 10) systematics =  "gamovminus15";
+	if(syst == 11){ systematics =  "Nmix20"; Nmixevents = Nmixevents + 10; }
+	if(syst == 12){ systematics =  "Nmix05"; Nmixevents = Nmixevents - 5; }
+	if(syst == 13){ systematics =  "minvz3"; minvz = minvz + 1.0; }
+	if(syst == 14){ systematics =  "minvz1"; minvz = minvz - 1.0; }
+	if(syst == 15){ systematics =  "mincentormult10"; mincentormult = mincentormult + 5; }
+	if(syst == 16){ systematics =  "mincentormult3"; mincentormult = mincentormult - 2; }
 	
 	if(use_centrality){ systematics +=  "_cent"; } else { systematics +=  "_Ntroff"; }
 	
@@ -141,7 +153,7 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 		hea_tree->GetEntry(i); // get events from ttree
 
 		if(i != 0 && (i % 100) == 0){double alpha = (double)i; cout << " Running -> percentage: " << std::setprecision(3) << ((alpha / nev) * 100) << "%" << endl;} // % processed
-		if(do_quicktest){if(i != 0 && i % 1000 == 0 ) break;} // just for quick tests
+		if(do_quicktest){if(i != 0 && i % 200 == 0 ) break;} // just for quick tests
 
 		int cent;
 		if(syst == 5){ cent = (int) (0.98 * (float)hiBin / 0.95);
@@ -172,7 +184,7 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 		vzhist->Fill(vertexz);
 
 		if(Ntroff < 10) continue; // just to remove MB track inneficiency		
-		if(!use_centrality) if(Ntroff > 250) continue; // remove events with multiplicity > 250
+		if(!use_centrality) if(Ntroff > 500) continue; // remove events with multiplicity > 250 to speed up the code
 		if(use_centrality) if(hiBin > 180) continue; // remove 90% events due EM contamination
 		Nevents->Fill(5); // filled after each event cut	
 
@@ -186,14 +198,14 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 		
 		// ------------------- Reconstruction level (Data and MC) ----------------------------
 		// Start loop over reco tracks (trksize is number of reco tracks)
-		//CheckNtrk->Fill();
+		CheckNtrk->Fill(ntrk);
 		if(ntrk < 2) continue; // speed up code
-		if(ntrk > 9999) continue; // reduces PU effect
+		//if(ntrk > 9999) continue; // reduces PU effect (to be added later)
 
 		for (int j = 0; j < ntrk; j++){ 
 	
 		    // Track QA array
-			double x_reco_trk[5]={trkpt[j],trketa[j],trkphi[j],(double) trkcharge[j],(double) cent}; 
+			double x_reco_trk[5]={trkpt[j],trketa[j],trkphi[j],(double) trkcharge[j],(double) (use_centrality ? cent : Ntroff)}; 
 
 			// Define some quantities		
 			int NDF = (int) trkndof[j];
@@ -211,7 +223,7 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 			npixelhit_beforeselection->Fill((float)Npixelhit);
 			
 			// Apply track selection (see read_tree.h to see what each variable means)
-			if(trkpt[j] <= 0.3) continue;
+			if(trkpt[j] <= 0.2) continue;
 			if(fabs(trketa[j]) > 2.4) continue;
 			if(highpur[j] == false) continue;
 			if(syst != 8) if (Npixelhit == 0) continue;
@@ -261,8 +273,7 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 
 		if(tracks_reco.size() > 1){
 			Nevents->Fill(6); // filled after each event cut
-			if(use_centrality) twoparticlecorrelation(tracks_reco, track_charge_reco, track_weight_reco, hist_pairSS_Mass, hist_dpt_cos_SS, hist_qinv_SS, hist_qinv_SS_INV, hist_qinv_SS_ROT, hist_q3D_SS, hist_q3D_SS_INV, hist_q3D_SS_ROT, hist_pairOS_Mass, hist_dpt_cos_OS, hist_qinv_OS, hist_qinv_OS_INV, hist_qinv_OS_ROT, hist_q3D_OS, hist_q3D_OS_INV, hist_q3D_OS_ROT, cent, dosplit, do_hbt3d, do_gamov, syst); // HBT correlations done at this step
-			if(!use_centrality) twoparticlecorrelation(tracks_reco, track_charge_reco, track_weight_reco, hist_pairSS_Mass, hist_dpt_cos_SS, hist_qinv_SS, hist_qinv_SS_INV, hist_qinv_SS_ROT, hist_q3D_SS, hist_q3D_SS_INV, hist_q3D_SS_ROT, hist_pairOS_Mass, hist_dpt_cos_OS, hist_qinv_OS, hist_qinv_OS_INV, hist_qinv_OS_ROT, hist_q3D_OS, hist_q3D_OS_INV, hist_q3D_OS_ROT, Ntroff, dosplit, do_hbt3d, do_gamov, syst); // HBT correlations done at this step
+			twoparticlecorrelation(tracks_reco, track_charge_reco, track_weight_reco, hist_pairSS_Mass, hist_dpt_cos_SS, hist_qinv_SS, hist_qinv_SS_INV, hist_qinv_SS_ROT, hist_q3D_SS, hist_q3D_SS_INV, hist_q3D_SS_ROT, hist_pairOS_Mass, hist_dpt_cos_OS, hist_qinv_OS, hist_qinv_OS_INV, hist_qinv_OS_ROT, hist_q3D_OS, hist_q3D_OS_INV, hist_q3D_OS_ROT, (use_centrality ? cent : Ntroff), dosplit, do_hbt3d, do_gamov, syst); // HBT correlations done at this step
 			track_4vector.push_back(tracks_reco); // save 4 vector for mixing
 			track_charge_vector.push_back(track_charge_reco); // save charge vector for mixing
 			track_weights_vector.push_back(track_weight_reco); // save eff weight vector for mixing
@@ -279,14 +290,14 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 		if(is_MC){
 
 			if(gen_trkpt->size() < 2) continue;
-			if(gen_trkpt->size() > 9999) continue;
+			//if(gen_trkpt->size() > 9999) continue;
 
 			for(int j = 0; j < (int)gen_trkpt->size(); j++){ 
 				// Kinematic and charge cuts
 				if(fabs(gen_trketa->at(j)) > 2.4) continue;
-				if(gen_trkpt->at(j) <= 0.3)continue;
+				if(gen_trkpt->at(j) <= 0.2)continue;
 				// Track/particle QA histogram filling
-				double x_gen_trk[5]={gen_trkpt->at(j), gen_trketa->at(j), gen_trkphi->at(j), (double) gen_trkchg->at(j), (double) cent}; 	
+				double x_gen_trk[5]={gen_trkpt->at(j), gen_trketa->at(j), gen_trkphi->at(j), (double) gen_trkchg->at(j), (double) (use_centrality ? cent : Ntroff) }; 	
 		    	ROOT::Math::PtEtaPhiMVector TrackFourVectorGen;
       			TrackFourVectorGen.SetM(pi_mass);
       			TrackFourVectorGen.SetEta(gen_trketa->at(j));
@@ -298,9 +309,8 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 				track_weight_gen.push_back(1.0); 						
 			} // End loop over gen tracks
 
-			if(tracks_gen.size()>1){
-				if(use_centrality) twoparticlecorrelation(tracks_gen, track_charge_gen, track_weight_gen, hist_pairSS_Mass_gen, hist_dpt_cos_SS_gen, hist_qinv_SS_gen, hist_qinv_SS_gen_INV, hist_qinv_SS_gen_ROT, hist_q3D_SS_gen, hist_q3D_SS_gen_INV, hist_q3D_SS_gen_ROT, hist_pairOS_Mass_gen, hist_dpt_cos_OS_gen, hist_qinv_OS_gen, hist_qinv_OS_gen_INV, hist_qinv_OS_gen_ROT, hist_q3D_OS_gen, hist_q3D_OS_gen_INV, hist_q3D_OS_gen_ROT, cent, dosplit, do_hbt3d, do_gamov, syst); // HBT correlations done at this step
-				if(!use_centrality) twoparticlecorrelation(tracks_gen, track_charge_gen, track_weight_gen, hist_pairSS_Mass_gen, hist_dpt_cos_SS_gen, hist_qinv_SS_gen, hist_qinv_SS_gen_INV, hist_qinv_SS_gen_ROT, hist_q3D_SS_gen, hist_q3D_SS_gen_INV, hist_q3D_SS_gen_ROT, hist_pairOS_Mass_gen, hist_dpt_cos_OS_gen, hist_qinv_OS_gen, hist_qinv_OS_gen_INV, hist_qinv_OS_gen_ROT, hist_q3D_OS_gen, hist_q3D_OS_gen_INV, hist_q3D_OS_gen_ROT, Ntroff, dosplit, do_hbt3d, do_gamov, syst); // HBT correlations done at this step
+			if(tracks_gen.size() > 1){
+				twoparticlecorrelation(tracks_gen, track_charge_gen, track_weight_gen, hist_pairSS_Mass_gen, hist_dpt_cos_SS_gen, hist_qinv_SS_gen, hist_qinv_SS_gen_INV, hist_qinv_SS_gen_ROT, hist_q3D_SS_gen, hist_q3D_SS_gen_INV, hist_q3D_SS_gen_ROT, hist_pairOS_Mass_gen, hist_dpt_cos_OS_gen, hist_qinv_OS_gen, hist_qinv_OS_gen_INV, hist_qinv_OS_gen_ROT, hist_q3D_OS_gen, hist_q3D_OS_gen_INV, hist_q3D_OS_gen_ROT, (use_centrality ? cent : Ntroff), dosplit, do_hbt3d, do_gamov, syst); // HBT correlations done at this step
 				track_4vector_gen.push_back(tracks_gen); // save 4 vector for mixing
 				track_charge_vector_gen.push_back(track_charge_gen); // save charge vector for mixing
 				track_weights_vector_gen.push_back(track_weight_gen); // save eff weight vector for mixing
@@ -369,5 +379,4 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 	cout << "Total running time: " << (double)(sec_end - sec_start) / CLOCKS_PER_SEC << " [s]" << endl;
 	cout << "========================================" << endl;
 
-	return 0;
 }

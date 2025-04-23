@@ -16,6 +16,9 @@ parser.add_option('-c', '--ncpu', dest='numberofcpu', help='number of cpu reques
 parser.add_option('-n', '--njobs', dest='numberofjobs', help='number of jobs to be submitted (integer)', default='1', type='int')
 parser.add_option('-s', '--subfiles', dest='subfiles', help='HTCondor submission file', default='HTcondor_sub_data_', type='string')
 parser.add_option('-u', '--uncertanties', dest='uncertanties', help='Systematic uncertainties number', default='0', type='int')
+parser.add_option('-w', '--cmssw', dest='cmsswdir', help='CMSSW directory', default='$CMSSW_BASE/src', type='string')
+parser.add_option('-p', '--pwd', dest='pwddir', help='Local directory', default='$(pwd)', type='string')
+
 (opt, args) = parser.parse_args()
 inFiles = opt.infiles
 outFiles = opt.outputfiles
@@ -24,6 +27,8 @@ nCpu = opt.numberofcpu
 nJobs = opt.numberofjobs
 subFiles = opt.subfiles
 uncerSys = opt.uncertanties
+cmsswDir = opt.cmsswdir
+pwdDir = opt.pwddir
 
 ''' Read list of files '''
 listOfFiles = open(inFiles+'.txt', 'r')
@@ -41,6 +46,26 @@ if(ratio < 1):
 ratioint = int(ratio)
 print ("file/jobs: "+str(ratio)+"   --> closest integer: " +str(int(ratioint)))
 
+
+''' Make .sh file automatically '''
+script_content = """#!/bin/bash
+
+echo "Setup CMSSW (ROOT version)"
+cd """+cmsswDir+"""
+eval `scramv1 runtime -sh`
+cd """+pwdDir+"""
+mkdir -p cond
+echo "Submit skim jobs at "
+echo PWD: $PWD
+
+root -l -b -q "correlation_XeXe.C(\"$1\", \"$2\", $3, $4, $5, $6, $7, $8, $9, ${10}, ${11}, ${12})"
+"""
+
+# Save to a shell script file
+with open("htsub.sh", "w") as f:
+    f.write(script_content)
+
+os.chmod("htsub.sh", 0o755)
 
 ''' Start the write submission file '''
 fsubfile = open(subFiles+".sub", "w")
@@ -100,4 +125,4 @@ queue
 
 fsubfile.write(command_lines)
 fsubfile.close()
-subprocess.call(["condor_submit", subFiles+".sub"])
+#subprocess.call(["condor_submit", subFiles+".sub"])

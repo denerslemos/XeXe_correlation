@@ -21,7 +21,7 @@ void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_m
       int nMix_nevt_trg = Trk_nevt_trg_vec.size(); // track vector size for triggers
 
       int assloop_start;
-      float wrap_evnt = (float) 0.75 * aux_n_evts;
+      float wrap_evnt = (float) 0.7 * aux_n_evts;
       if( nevt_trg < round(wrap_evnt) ){ assloop_start = nevt_trg + 1; } else { assloop_start = 0; }
 
       int n_associated = 0; // counter used to find the number to mix
@@ -44,37 +44,40 @@ void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_m
          n_associated = n_associated + 1; // if pass the requirements sum 1
          
          // loop and fill correlation histograms
-         for(int imix = 0; imix < nMix_nevt_trg; imix++){
+	 	 for (int ipair = 0; ipair < (nMix_nevt_trg * nMix_nevt_ass); ipair++){ // start loop over tracks
+
+	        int imix = ipair / nMix_nevt_ass;
+    	    int iimix = ipair % nMix_nevt_ass;
+    	    
 			double eff_trk_imix = Trk_eff_nevt_trg_vec[imix];
-            for(int iimix = 0; iimix < nMix_nevt_ass; iimix++){
-				double eff_trk_iimix = Trk_chg_nevt_ass_vec[iimix];
-				double tot_eff = eff_trk_imix * eff_trk_iimix;
-				if(docostdptcut){ if(splitcomb(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix],coscutmix,dptcutmix)) continue; }
-        		ROOT::Math::PtEtaPhiMVector psum2 = Trk_nevt_trg_vec[imix] + Track_nevt_ass_vec[iimix];
-        		double kt = (psum2.Pt())/2.;
-				double qinv = GetQ(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix]);
-				double qlong = GetQlongLCMS(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix]);
-				double qout = GetQout(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix]);
-				double qside = GetQside(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix]);
-				double x_2pc_hbt[3]={qinv, kt, (double)ev_centrality[nevt_trg]}; 
-				double x_2pc_hbt_3D[5]={qlong, qout, qside, kt, (double)ev_centrality[nevt_trg]}; 
-				double coulomb_ss = 1.0;
-				double coulomb_os = 1.0;
-				if(dogamovcorrection){
-					coulomb_ss = CoulombSS(qinv,systematic);
-					coulomb_os = CoulombOS(qinv,systematic);		
-				}
-				if(Trk_chg_nevt_trg_vec[imix]*Trk_chg_nevt_ass_vec[iimix] > 0){
-					histo_SS->Fill(x_2pc_hbt,coulomb_ss*tot_eff);
-					if(do_hbt3d) histo_SS3D->Fill(x_2pc_hbt_3D,coulomb_ss*tot_eff);
-				}else{
-					histo_OS->Fill(x_2pc_hbt,coulomb_os*tot_eff);			
-					if(do_hbt3d) histo_OS3D->Fill(x_2pc_hbt_3D,coulomb_os*tot_eff);			
-				}						
-            }
+			double eff_trk_iimix = Trk_chg_nevt_ass_vec[iimix];
+			double tot_eff = eff_trk_imix * eff_trk_iimix;
+			if(fabs(Trk_nevt_trg_vec[imix].Eta() - Track_nevt_ass_vec[iimix].Eta()) == 0 && fabs(Trk_nevt_trg_vec[imix].Phi() - Track_nevt_ass_vec[iimix].Phi()) == 0) continue;
+			if(docostdptcut){ if(splitcomb(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix],coscutmix,dptcutmix)) continue; }
+        	ROOT::Math::PtEtaPhiMVector psum2 = Trk_nevt_trg_vec[imix] + Track_nevt_ass_vec[iimix];
+        	double kt = (psum2.Pt())/2.;
+			double qinv = GetQ(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix]);
+			double qlong = GetQlongLCMS(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix]);
+			double qout = GetQout(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix]);
+			double qside = GetQside(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix]);
+			double x_2pc_hbt[3]={qinv, kt, (double)ev_centrality[nevt_trg]}; 
+			double x_2pc_hbt_3D[5]={qlong, qout, qside, kt, (double)ev_centrality[nevt_trg]}; 
+			double coulomb_ss = 1.0;
+			double coulomb_os = 1.0;
+			if(dogamovcorrection){
+				coulomb_ss = CoulombSS(qinv,systematic);
+				coulomb_os = CoulombOS(qinv,systematic);		
+			}
+			if(Trk_chg_nevt_trg_vec[imix]*Trk_chg_nevt_ass_vec[iimix] > 0){
+				histo_SS->Fill(x_2pc_hbt,coulomb_ss*tot_eff);
+				if(do_hbt3d) histo_SS3D->Fill(x_2pc_hbt_3D,coulomb_ss*tot_eff);
+			}else{
+				histo_OS->Fill(x_2pc_hbt,coulomb_os*tot_eff);			
+				if(do_hbt3d) histo_OS3D->Fill(x_2pc_hbt_3D,coulomb_os*tot_eff);			
+			}						
          } // end of correlation loop
          if(n_associated == nEvt_to_mix)break;
-      }
+      } // end of associate loop
       NeventsAss->Fill(n_associated);
    } // end of all events loop
 }
