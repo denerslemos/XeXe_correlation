@@ -58,7 +58,7 @@ TH1D *npixelhit = new TH1D("npixelhit", "npixelhit", 5, 0.0, 5.0);
 // Axis : 0 -> track pT, 1 -> trk eta, 2 -> trk phi, 3 -> trk charge, 4 -> centrality bin
 int	bins_trk[5]      =   { 200   ,  24  ,   30				      , 3   , nCentBins};
 double xmin_trk[5]   =   { 0.0   , -2.4 ,   -TMath::Pi()  		  , -1.5, CentBins[0]};
-double xmax_trk[5]   =   { 50.0  ,  2.4 ,   TMath::Pi()  		  ,  1.5, CentBins[nCentBins+1]};
+double xmax_trk[5]   =   { 50.0  ,  2.4 ,   TMath::Pi()  		  ,  1.5, CentBins[nCentBins]};
 // --> Reco
 THnSparseD *hist_reco_trk_beforeselection = new THnSparseD("hist_reco_trk_beforeselection", "hist_reco_trk_beforeselection", 5, bins_trk, xmin_trk, xmax_trk);
 THnSparseD *hist_reco_trk = new THnSparseD("hist_reco_trk", "hist_reco_trk", 5, bins_trk, xmin_trk, xmax_trk);
@@ -70,7 +70,7 @@ THnSparseD *hist_gen_trk = new THnSparseD("hist_gen_trk", "hist_gen_trk", 5, bin
 // Axis : 0 -> qinv, 1 -> kT, 2 -> centrality bin
 int	bins_qinv[3]      =   { nQBins , nKtBins  		   ,   nCentBins};
 double xmin_qinv[3]   =   { minQ   , KtBins[0] 		   ,   CentBins[0]};
-double xmax_qinv[3]   =   { maxQ   , KtBins[nKtBins+1] ,   CentBins[nCentBins+1]};
+double xmax_qinv[3]   =   { maxQ   , KtBins[nKtBins] ,   CentBins[nCentBins]};
 THnSparseD *hist_qinv_SS = new THnSparseD("hist_qinv_SS", "hist_qinv_SS", 3, bins_qinv, xmin_qinv, xmax_qinv);
 THnSparseD *hist_qinv_SS_INV = new THnSparseD("hist_qinv_SS_INV", "hist_qinv_SS_INV", 3, bins_qinv, xmin_qinv, xmax_qinv);
 THnSparseD *hist_qinv_SS_ROT = new THnSparseD("hist_qinv_SS_ROT", "hist_qinv_SS_ROT", 3, bins_qinv, xmin_qinv, xmax_qinv);
@@ -92,7 +92,7 @@ THnSparseD *hist_qinv_OS_gen_MIX = new THnSparseD("hist_qinv_OS_gen_MIX", "hist_
 // Axis : 0 -> qlong, 1 -> qout, 2 -> qside, 3 -> kT, 4 -> centrality bin
 int	bins_q3D[5]      =   { nQBins3D, nQBins3D, nQBins3D,  nKtBins 		      , nCentBins};
 double xmin_q3D[5]   =   { minQ3D  , minQ3D  , minQ3D  ,  KtBins[0] 		  , CentBins[0]};
-double xmax_q3D[5]   =   { maxQ3D  , maxQ3D  , maxQ3D  ,  KtBins[nKtBins+1]   , CentBins[nCentBins+1]};
+double xmax_q3D[5]   =   { maxQ3D  , maxQ3D  , maxQ3D  ,  KtBins[nKtBins]   , CentBins[nCentBins]};
 THnSparseD *hist_q3D_SS = new THnSparseD("hist_q3D_SS", "hist_q3D_SS", 5, bins_q3D, xmin_q3D, xmax_q3D);
 THnSparseD *hist_q3D_SS_INV = new THnSparseD("hist_q3D_SS_INV", "hist_q3D_SS_INV", 5, bins_q3D, xmin_q3D, xmax_q3D);
 THnSparseD *hist_q3D_SS_ROT = new THnSparseD("hist_q3D_SS_ROT", "hist_q3D_SS_ROT", 5, bins_q3D, xmin_q3D, xmax_q3D);
