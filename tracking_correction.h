@@ -23,5 +23,6 @@ double getTrkCorrWeight(TFile *trkeff_file, int centrality, double pT, double et
   }else if (centrality > 140){trkeff_file->GetObject("rTotalEff3D_70_100", eff_factor);}
   double eff = eff_factor->GetBinContent( eff_factor->GetXaxis()->FindBin(eta),eff_factor->GetYaxis()->FindBin(pT) );
   factor = (1. / eff); //only efficiency
+  delete eff_factor;
   return factor;
 }
