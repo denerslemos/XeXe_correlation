@@ -24,5 +24,6 @@ double getTrkCorrWeight(TFile *trkeff_file, int centrality, double pT, double et
   double eff = eff_factor->GetBinContent( eff_factor->GetXaxis()->FindBin(eta),eff_factor->GetYaxis()->FindBin(pT) );
   factor = (1. / eff); //only efficiency
   delete eff_factor;
+  eff_factor = nullptr;
   return factor;
 }
