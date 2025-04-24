@@ -62,16 +62,16 @@ root -l -b -q "correlation_XeXe.C(\"$1\", \"$2\", $3, $4, $5, $6, $7, $8, $9, ${
 """
 
 # Save to a shell script file
-with open("htsub.sh", "w") as f:
+with open("htsubcent.sh", "w") as f:
     f.write(script_content)
 
-os.chmod("htsub.sh", 0o755)
+os.chmod("htsubcent.sh", 0o755)
 
 ''' Start the write submission file '''
 fsubfile = open(subFiles+".sub", "w")
 command_lines = '''universe   = vanilla
 getenv     = True
-executable = htsub.sh
+executable = htsubcent.sh
 +JobFlavour           = "'''+str(jobFlavour)+'''"
 requirements = ((OpSysAndVer =?= "AlmaLinux9") && (CERNEnvironment =?= "qa"))
 RequestCpus = '''+str(nCpu)+'''
