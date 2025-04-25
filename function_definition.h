@@ -18,14 +18,13 @@ dcaxyerr: track DCA in the transverse plane uncertainty
 dcaz: track DCA in the longitudinal plane
 dcazerr: track DCA in the longitudinal plane uncertainty
 */
-int get_Ntrkoff(int size, float *pt, float *eta, int *charge, bool *hp, float *pterr, float *dcaxy, float *dcaxyerr,  float *dcaz, float *dcazerr){
+int get_Ntrkoff(int size, float *pt, float *eta, bool *hp, float *pterr, float *dcaxy, float *dcaxyerr,  float *dcaz, float *dcazerr){
 	int Ntrk_off = 0;
 	for(int ii=0; ii<size; ii++){ 
 		if(pt[ii] <= 0.3) continue;
 		if(fabs(eta[ii]) > 2.4) continue; 
-		if(fabs(charge[ii]) == 0)continue;
 		if(hp[ii] == false) continue;
-		if(fabs(pterr[ii]/pt[ii]) >= 0.1) continue;
+		if(pterr[ii]/pt[ii] >= 0.1) continue;
 		if(fabs(dcaxy[ii]/dcaxyerr[ii]) >= 3.0) continue;
 		if(fabs(dcaz[ii]/dcazerr[ii]) >= 3.0) continue;
 		Ntrk_off=Ntrk_off+1;

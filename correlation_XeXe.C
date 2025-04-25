@@ -161,8 +161,9 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 		} else if(syst == 6){ cent = (int) (0.92 * (float)hiBin / 0.95);
 		} else{ cent = (int) hiBin; }
 
-		int Ntroff = get_Ntrkoff(ntrk, trkpt, trketa, trkcharge, highpur, trkpterr, trkdcaxy, trkdcaxyerr, trkdcaz, trkdcazerr);
-
+		int Ntroff = 0;
+		if(!use_centrality) Ntroff = get_Ntrkoff(ntrk, trkpt, trketa, highpur, trkpterr, trkdcaxy, trkdcaxyerr, trkdcaz, trkdcazerr);
+		
 		centrality_beforefilters->Fill(cent);
 		vzhist_beforefilters->Fill(vertexz);
 
@@ -184,9 +185,9 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 		centrality->Fill(cent);
 		vzhist->Fill(vertexz);
 
-		if(Ntroff < 10) continue; // just to remove MB track inneficiency		
-		if(!use_centrality) if(Ntroff > 500) continue; // remove events with multiplicity > 250 to speed up the code
 		if(use_centrality) if(hiBin > 180) continue; // remove 90% events due EM contamination
+		if(!use_centrality && Ntroff < 10) continue; // just to remove MB track inneficiency		
+		if(!use_centrality) if(Ntroff > 500) continue; // remove events with multiplicity > 250 to speed up the code
 		Nevents->Fill(5); // filled after each event cut	
 
 		// Vectors used for objects
@@ -200,8 +201,6 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 		// ------------------- Reconstruction level (Data and MC) ----------------------------
 		// Start loop over reco tracks (trksize is number of reco tracks)
 		CheckNtrk->Fill(ntrk);
-		if(ntrk < 2) continue; // speed up code
-		//if(ntrk > 9999) continue; // reduces PU effect (to be added later)
 
 		for (int j = 0; j < ntrk; j++){ 
 	
@@ -268,7 +267,9 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 			track_weight_reco.push_back(trk_weight); 
 
 		} // End loop over tracks
-	
+
+		if(use_centrality) Ntroff = tracks_reco.size();	
+
 		multiplicity->Fill(Ntroff);
 		MultVSCent->Fill(Ntroff,cent);
 
@@ -290,13 +291,11 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 		// Generator level --> MC only
 		if(is_MC){
 
-			if(gen_trkpt->size() < 2) continue;
-			//if(gen_trkpt->size() > 9999) continue;
-
 			for(int j = 0; j < (int)gen_trkpt->size(); j++){ 
 				// Kinematic and charge cuts
 				if(fabs(gen_trketa->at(j)) > 2.4) continue;
 				if(gen_trkpt->at(j) <= 0.2)continue;
+				if(gen_trkchg->at(j) == 0) continue;
 				// Track/particle QA histogram filling
 				double x_gen_trk[5]={gen_trkpt->at(j), gen_trketa->at(j), gen_trkphi->at(j), (double) gen_trkchg->at(j), (double) (use_centrality ? cent : Ntroff) }; 	
 		    	ROOT::Math::PtEtaPhiMVector TrackFourVectorGen;
@@ -309,6 +308,8 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 				track_charge_gen.push_back(gen_trkchg->at(j)); 
 				track_weight_gen.push_back(1.0); 						
 			} // End loop over gen tracks
+			
+			mcmultiplicity->Fill(tracks_gen.size());
 
 			if(tracks_gen.size() > 1){
 				twoparticlecorrelation(tracks_gen, track_charge_gen, track_weight_gen, hist_pairSS_Mass_gen, hist_dpt_cos_SS_gen, hist_qinv_SS_gen, hist_qinv_SS_gen_INV, hist_qinv_SS_gen_ROT, hist_q3D_SS_gen, hist_q3D_SS_gen_INV, hist_q3D_SS_gen_ROT, hist_pairOS_Mass_gen, hist_dpt_cos_OS_gen, hist_qinv_OS_gen, hist_qinv_OS_gen_INV, hist_qinv_OS_gen_ROT, hist_q3D_OS_gen, hist_q3D_OS_gen_INV, hist_q3D_OS_gen_ROT, (use_centrality ? cent : Ntroff), dosplit, do_hbt3d, do_gamov, syst); // HBT correlations done at this step

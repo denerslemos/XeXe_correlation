@@ -35,7 +35,7 @@ TH2D *MultVSCent = new TH2D("MultVSCent", "MultVSCent", 200, 0.0, 4000.0, 100, 0
 TH1I *NeventsAss = new TH1I("NeventsAss", "NeventsAss", 11, 0, 11);
 TH1I *NeventsAssGEN = new TH1I("NeventsAssGEN", "NeventsAssGEN", 11, 0, 11);
 TH1D *CheckNtrk = new TH1D("CheckNtrk", "CheckNtrk", 20000, 0, 20000);
-
+TH1D *mcmultiplicity = new TH1D("mcmultiplicity", "mcmultiplicity", 400, 0.0, 4000.0);
 
 //histograms before selection
 TH1D *dxyoversigmadxy_beforeselection = new TH1D("dxyoversigmadxy_beforeselection", "dxyoversigmadxy_beforeselection", 100, -6.0, 6.0);
