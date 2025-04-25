@@ -13,11 +13,11 @@ void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_m
    
    for(int nevt_trg = 0; nevt_trg < aux_n_evts; nevt_trg++){ // first loop over all events
 
-	  if(nevt_trg != 0 && (nevt_trg % tenper) == 0){cout << nevt_trg << " out of " << aux_n_evts << endl;} // % processed
+      if(nevt_trg != 0 && (nevt_trg % tenper) == 0){cout << nevt_trg << " out of " << aux_n_evts << endl;} // % processed
 
       std::vector<ROOT::Math::PtEtaPhiMVector> Trk_nevt_trg_vec = Track_Vector[nevt_trg]; // track 4-vector for each trigger event
-	  std::vector<int> Trk_chg_nevt_trg_vec = Track_Chg_Vector[nevt_trg]; // track charge vector for each trigger event
-	  std::vector<double> Trk_eff_nevt_trg_vec = Track_Eff_Vector[nevt_trg]; // track efficiency vector for each trigger event
+      std::vector<int> Trk_chg_nevt_trg_vec = Track_Chg_Vector[nevt_trg]; // track charge vector for each trigger event
+      std::vector<double> Trk_eff_nevt_trg_vec = Track_Eff_Vector[nevt_trg]; // track efficiency vector for each trigger event
       int nMix_nevt_trg = Trk_nevt_trg_vec.size(); // track vector size for triggers
 
       int assloop_start;
@@ -37,25 +37,25 @@ void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_m
          if(fabs(vtx_z_vec[nevt_trg] - vtx_z_vec[nevt_assoc]) > vzcut) continue; // vz matching
 
          std::vector<ROOT::Math::PtEtaPhiMVector> Track_nevt_ass_vec = Track_Vector[nevt_assoc]; // track 4-vector for each associate event
-	     std::vector<int> Trk_chg_nevt_ass_vec = Track_Chg_Vector[nevt_assoc]; // track charge vector for each associate event
-	  	 std::vector<double> Trk_eff_nevt_ass_vec = Track_Eff_Vector[nevt_assoc]; // track efficiency vector for each associate event
+	 std::vector<int> Trk_chg_nevt_ass_vec = Track_Chg_Vector[nevt_assoc]; // track charge vector for each associate event
+	 std::vector<double> Trk_eff_nevt_ass_vec = Track_Eff_Vector[nevt_assoc]; // track efficiency vector for each associate event
          int nMix_nevt_ass = (int)Track_nevt_ass_vec.size();  // track vector size for associate
 
          n_associated = n_associated + 1; // if pass the requirements sum 1
-         
+      	 if(n_associated > nEvt_to_mix)break;   
          // loop and fill correlation histograms
 	 	 for (int ipair = 0; ipair < (nMix_nevt_trg * nMix_nevt_ass); ipair++){ // start loop over tracks
 
-	        int imix = ipair / nMix_nevt_ass;
-    	    int iimix = ipair % nMix_nevt_ass;
+	        	int imix = ipair / nMix_nevt_ass;
+    	    		int iimix = ipair % nMix_nevt_ass;
     	    
 			double eff_trk_imix = Trk_eff_nevt_trg_vec[imix];
-			double eff_trk_iimix = Trk_chg_nevt_ass_vec[iimix];
+			double eff_trk_iimix = Trk_eff_nevt_ass_vec[iimix];
 			double tot_eff = eff_trk_imix * eff_trk_iimix;
 			if(fabs(Trk_nevt_trg_vec[imix].Eta() - Track_nevt_ass_vec[iimix].Eta()) == 0 && fabs(Trk_nevt_trg_vec[imix].Phi() - Track_nevt_ass_vec[iimix].Phi()) == 0) continue;
 			if(docostdptcut){ if(splitcomb(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix],coscutmix,dptcutmix)) continue; }
-        	ROOT::Math::PtEtaPhiMVector psum2 = Trk_nevt_trg_vec[imix] + Track_nevt_ass_vec[iimix];
-        	double kt = (psum2.Pt())/2.;
+        		ROOT::Math::PtEtaPhiMVector psum2 = Trk_nevt_trg_vec[imix] + Track_nevt_ass_vec[iimix];
+        		double kt = (psum2.Pt())/2.;
 			double qinv = GetQ(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix]);
 			double qlong = GetQlongLCMS(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix]);
 			double qout = GetQout(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix]);
@@ -76,7 +76,7 @@ void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_m
 				if(do_hbt3d) histo_OS3D->Fill(x_2pc_hbt_3D,coulomb_os*tot_eff);			
 			}						
          } // end of correlation loop
-         if(n_associated == nEvt_to_mix)break;
+      if(n_associated == nEvt_to_mix)break;
       } // end of associate loop
       NeventsAss->Fill(n_associated);
    } // end of all events loop
