@@ -164,7 +164,7 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 
 		hea_tree->GetEntry(i); // get events from ttree
 
-		if(i != 0 && (i % 10) == 0){double alpha = (double)i; cout << " Running -> percentage: " << std::setprecision(3) << ((alpha / nev) * 100) << "%" << endl;} // % processed
+		if(i != 0 && (i % 1000) == 0){double alpha = (double)i; cout << " Running -> percentage: " << std::setprecision(3) << ((alpha / nev) * 100) << "%" << endl;} // % processed
 		if(do_quicktest){if(i != 0 && i % 200 == 0 ) break;} // just for quick tests
 
 		int cent;
