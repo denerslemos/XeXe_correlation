@@ -78,7 +78,7 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 	
 	// Track or particle efficiency file
 	TFile *fileeff;
-	//fileeff = TFile::Open("efftables/XeXe_eff_table_94x_cent.root");
+	fileeff = TFile::Open("efftables/XeXe_eff_table_94x_cent.root");
 	if(syst != 1 && syst != 2 && syst != 3 && syst != 4) fileeff = TFile::Open("efftables/XeXe_eff_table_94x_cent.root");
 	if(syst == 1) fileeff = TFile::Open("efftables/XeXe_eff_narrow_table_94x_cent.root");
 	if(syst == 2) fileeff = TFile::Open("efftables/XeXe_eff_wide_table_94x_cent.root");
@@ -164,20 +164,20 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 
 		hea_tree->GetEntry(i); // get events from ttree
 
-		if(i != 0 && (i % 100) == 0){double alpha = (double)i; cout << " Running -> percentage: " << std::setprecision(3) << ((alpha / nev) * 100) << "%" << endl;} // % processed
+		if(i != 0 && (i % 10) == 0){double alpha = (double)i; cout << " Running -> percentage: " << std::setprecision(3) << ((alpha / nev) * 100) << "%" << endl;} // % processed
 		if(do_quicktest){if(i != 0 && i % 200 == 0 ) break;} // just for quick tests
 
 		int cent;
 		if(syst == 5){ cent = (int) (0.98 * (float)hiBin / 0.95);
 		} else if(syst == 6){ cent = (int) (0.92 * (float)hiBin / 0.95);
 		} else{ cent = (int) hiBin; }
-		
+
 		TH2 *trkeff_file = nullptr; 
-		if(hiBin <= 20){trkeff_file = (TH2*)trkeff_file010->clone();
-		}else if (hiBin > 20 && hiBin <= 60){trkeff_file = (TH2*)trkeff_file1030->clone();
-		}else if (hiBin > 60 && hiBin <= 100){trkeff_file = (TH2*)trkeff_file3050->clone();
-		}else if (hiBin > 100 && hiBin <= 140){trkeff_file = (TH2*)trkeff_file5070->clone();
-		}else if (hiBin > 140){trkeff_file = (TH2*)trkeff_file70100->clone();}
+		if(hiBin <= 20){trkeff_file = (TH2*)trkeff_file010->Clone();
+		}else if (hiBin > 20 && hiBin <= 60){trkeff_file = (TH2*)trkeff_file1030->Clone();
+		}else if (hiBin > 60 && hiBin <= 100){trkeff_file = (TH2*)trkeff_file3050->Clone();
+		}else if (hiBin > 100 && hiBin <= 140){trkeff_file = (TH2*)trkeff_file5070->Clone();
+		}else if (hiBin > 140){trkeff_file = (TH2*)trkeff_file70100->Clone();}
 		
 		int Ntroff = 0;
 		if(!use_centrality) Ntroff = get_Ntrkoff(ntrk, trkpt, trketa, highpur, trkpterr, trkdcaxy, trkdcaxyerr, trkdcaz, trkdcazerr);
@@ -286,6 +286,8 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 
 		} // End loop over tracks
 
+		trkeff_file->Reset("ICESM"); // clear the efficiency histograms
+
 		if(use_centrality) Ntroff = tracks_reco.size();	
 
 		multiplicity->Fill(Ntroff);
@@ -305,7 +307,7 @@ void correlation_XeXe(TString input_file, TString ouputfile, int isMC, int doqui
 		tracks_reco.clear();
 		track_weight_reco.clear();
 		track_charge_reco.clear();
-		
+
 		// Generator level --> MC only
 		if(is_MC){
 
