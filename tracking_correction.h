@@ -16,6 +16,7 @@ double getTrkCorrWeight(TH2 *eff_factor, double pT, double eta){
   double factor = 1.0;
   // eff / (1 - fake rate)
   double eff = eff_factor->GetBinContent( eff_factor->GetXaxis()->FindBin(eta),eff_factor->GetYaxis()->FindBin(pT) );
+  if (eff < 0.0001) eff = 1.0;
   factor = (1. / eff); //only efficiency
   //eff_factor->Reset("ICESM");
   //delete eff_factor;
