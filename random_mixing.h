@@ -60,8 +60,8 @@ void MixEvents(bool use_centrality, int centrality_or_ntrkoff_int, int nEvt_to_m
 			double qlong = GetQlongLCMS(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix]);
 			double qout = GetQout(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix]);
 			double qside = GetQside(Trk_nevt_trg_vec[imix],Track_nevt_ass_vec[iimix]);
-			double x_2pc_hbt[3]={qinv, kt, (double)ev_centrality[nevt_trg]}; 
-			double x_2pc_hbt_3D[5]={qlong, qout, qside, kt, (double)ev_centrality[nevt_trg]}; 
+			double x_2pc_hbt[3]={qinv, kt, (double) (use_centrality ? ev_centrality[nevt_trg] : ev_multiplicity[nevt_trg])}; 
+			double x_2pc_hbt_3D[5]={qlong, qout, qside, kt, (double) (use_centrality ? ev_centrality[nevt_trg] : ev_multiplicity[nevt_trg])}; 
 			double coulomb_ss = 1.0;
 			double coulomb_os = 1.0;
 			if(dogamovcorrection){
