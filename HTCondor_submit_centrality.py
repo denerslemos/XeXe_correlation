@@ -82,7 +82,7 @@ if(ratio == len(Lines)):
 log        = cond/'''+subFiles+'''.log
 output     = cond/'''+subFiles+'''.out
 error      = cond/'''+subFiles+'''.err
-arguments = '''+inFiles+'''.txt '''+str(outFiles)+''' 0 0 0 10 5 2.0 0 0 0 '''+str(uncerSys)+'''
+arguments = '''+inFiles+'''.txt '''+str(outFiles)+''' 0 0 0 10 5 2.0 1 0 0 '''+str(uncerSys)+'''
 queue
 '''
 
@@ -102,7 +102,7 @@ elif(ratio != len(Lines)):
 log        = cond/'''+subFiles+'''_part_'''+str(i)+'''.log
 output     = cond/'''+subFiles+'''_part_'''+str(i)+'''.out
 error      = cond/'''+subFiles+'''_part_'''+str(i)+'''.err
-arguments = '''+inFiles+'''_part'''+str(i)+'''.txt '''+str(outFiles)+'''_job_'''+str(i)+''' 0 0 0 10 5 2.0 0 0 0 '''+str(uncerSys)+'''
+arguments = '''+inFiles+'''_part'''+str(i)+'''.txt '''+str(outFiles)+'''_job_'''+str(i)+''' 0 0 0 10 5 2.0 1 0 0 '''+str(uncerSys)+'''
 queue
 '''
 		command_lines += temp
@@ -116,7 +116,7 @@ elif(ratio == 1):
 log        = cond/'''+subFiles+'''_part_'''+str(i)+'''.log
 output     = cond/'''+subFiles+'''_part_'''+str(i)+'''.out
 error      = cond/'''+subFiles+'''_part_'''+str(i)+'''.err
-arguments = '''+inFiles+'''_part'''+str(i)+'''.txt '''+str(outFiles)+'''_job_'''+str(i)+''' 0 0 0 10 5 2.0 0 0 0 '''+str(uncerSys)+'''
+arguments = '''+inFiles+'''_part'''+str(i)+'''.txt '''+str(outFiles)+'''_job_'''+str(i)+''' 0 0 0 10 5 2.0 1 0 0 '''+str(uncerSys)+'''
 queue
 '''
 		command_lines += temp
